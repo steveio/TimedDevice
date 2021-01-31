@@ -30,6 +30,7 @@ class TimedDevice {
       void off();
       void toggle();
       void scheduledActivation(int h, int d);
+      long getActivations();
 
       Timer timer;
 

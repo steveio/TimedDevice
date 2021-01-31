@@ -7,6 +7,8 @@ and attributes to track number of activations, time of last activation etc
 
 Device classes (lamps, pumps etc) extend TimedDevice
 
-Timer type is recurring and bitmap based defining device status
+Timers are recurring and bitmap based
 
 Granularity (time units) are hours of day and day of week or month
+
+Optimisation is for low memory devices

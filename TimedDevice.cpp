@@ -45,5 +45,9 @@ void TimedDevice::scheduledActivation(int h, int d)
   {
     on();
   }
+}
 
+long TimedDevice::getActivations()
+{
+	return activations;
 }

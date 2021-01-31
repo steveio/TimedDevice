@@ -28,7 +28,28 @@ void Pump::off()
 }
 
 // activate/deactivate device according to timer schedule, respect activation interval (delay)
-void Pump::scheduledActivation(int h, int d)
+void Pump::activate(int h, int d)
+{
+  bool isScheduled = timer.isScheduled(h,d);
+
+  if (!isScheduled)
+  {
+    return;
+  }
+
+  if(!active && (lastActivation == 0 || (millis() > lastActivation + delay)))
+  {
+    on();
+  }
+
+  if (active && (millis() > lastActivation + duration))
+  {
+    off();
+  }
+
+}
+
+void Pump::deactivate(int h, int d)
 {
   bool isScheduled = timer.isScheduled(h,d);
 
@@ -38,9 +59,9 @@ void Pump::scheduledActivation(int h, int d)
     return;
   }
 
-  if(!active && (lastActivation == 0 || (millis() > lastActivation + delay)))
+  if (active && (millis() > lastActivation + duration))
   {
-    on();
+    off();
   }
 
 }

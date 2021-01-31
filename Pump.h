@@ -2,9 +2,9 @@
 
 Pump.h
 
-Relay represents a 5v water pump activated via a relay switch
+Pump represents a 5v water pump activated via a relay switch
 
-Duration and delay define running time (on activation) and interval delay between activations
+Duration and delay define running time (on activation) and interval (delay) between activations
 
 */
 
@@ -21,7 +21,8 @@ class Pump: public TimedDevice
     Pump(int pinId, unsigned long duration, unsigned long delay);
     void on();
     void off();
-    void scheduledActivation(int h, int d);
+    void activate(int h, int d);
+    void deactivate(int h, int d);
 
     int pinId; // digital pin relay is wired to
     unsigned long duration; // pump active duration
