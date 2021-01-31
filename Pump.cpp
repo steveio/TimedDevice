@@ -12,6 +12,12 @@ Pump::Pump(int pinId, unsigned long duration, unsigned long delay)
   delay = delay; // min time in ms between pump activations
 };
 
+Pump::Pump(int pinId, long timeout)
+{
+  pinId = pinId;
+  timeout = timeout;
+};
+
 
 void Pump::on()
 {
@@ -46,7 +52,6 @@ void Pump::activate(int h, int d)
   {
     off();
   }
-
 }
 
 void Pump::deactivate(int h, int d)
@@ -64,4 +69,12 @@ void Pump::deactivate(int h, int d)
     off();
   }
 
+}
+
+void Pump::checkTimeout()
+{
+  if (active && (millis() > lastActivation + timeout))
+  {
+    off();
+  }
 }
