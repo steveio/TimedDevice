@@ -29,6 +29,7 @@ class Timer {
 
       Timer();
       void init(int type, long * h);
+      bool isScheduled(int h);
       bool isScheduled(int h, int d);
       void printSchedule(Stream &s);
       int getNextEvent(int h);
@@ -36,19 +37,19 @@ class Timer {
     protected:
 
       // Timer type: Hour of Day + (optionally) Day of Week OR Day or Month
-      int type;
+      int _type;
 
       // Timer 32 bit bitmask defines hours (from 24h clock) on / off
       // 0b 00000000 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-      long * timerHour;
+      long * _timerHour;
 
       // Timer bit bitmask defines days of week, bits (0 - 6 Sun - Sat)
       // 0b 00000000000000000000000000000 6 5 4 3 2 1 0
-      long * timerDayOfWeek;
+      long * _timerDayOfWeek;
 
       // Timer 32 bit bitmask defines days of month
       // 0b 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-      long * timerDayOfMonth;
+      long * _timerDayOfMonth;
 
     private:
         bool checkBitSet(int n, long * l);

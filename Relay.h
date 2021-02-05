@@ -21,7 +21,7 @@ class Relay: public TimedDevice
     void on();
     void off();
 
-    int pinId; // digital pin relay is wired to
+    int _pinId; // digital pin relay is wired to
 
   protected:
 

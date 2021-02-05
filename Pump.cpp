@@ -5,50 +5,54 @@
 #include "Pump.h"
 
 
+
 Pump::Pump(int pinId, unsigned long duration, unsigned long delay)
 {
-  pinId = pinId;
-  duration = duration; // pump active duration
-  delay = delay; // min time in ms between pump activations
+  _pinId = pinId;
+  _duration = duration; // pump active duration
+  _delay = delay; // min time in ms between pump activations
 };
 
 Pump::Pump(int pinId, long timeout)
 {
-  pinId = pinId;
-  timeout = timeout;
+  _pinId = pinId;
+  _timeout = timeout;
 };
 
 
 void Pump::on()
 {
-    active = 1;
-    digitalWrite(pinId, LOW);
-    activations++;
-    lastActivation = millis();
+    digitalWrite(_pinId, LOW);
+    _active = 1;
+    _activations++;
+    _lastActivation = millis();
 }
 
 void Pump::off()
 {
-    active = 0;
-    digitalWrite(pinId, HIGH);
+    _active = 0;
+    digitalWrite(_pinId, HIGH);
 }
 
-// activate/deactivate device according to timer schedule, respect activation interval (delay)
-void Pump::activate(int h, int d)
+// activate/deactivate device according to timer schedule, w/ duration & interval (delay)
+void Pump::activate(int h)
 {
-  bool isScheduled = timer.isScheduled(h,d);
+  bool isScheduled = timer.isScheduled(h);
+
+  Serial.println("Pump Sched: ");
+  Serial.println(isScheduled);
 
   if (!isScheduled)
   {
     return;
   }
 
-  if(!active && (lastActivation == 0 || (millis() > lastActivation + delay)))
+  if(!_active && (_lastActivation == 0 || (millis() > _lastActivation + _delay)))
   {
     on();
   }
 
-  if (active && (millis() > lastActivation + duration))
+  if (_active && (millis() > _lastActivation + _duration))
   {
     off();
   }
@@ -64,7 +68,7 @@ void Pump::deactivate(int h, int d)
     return;
   }
 
-  if (active && (millis() > lastActivation + duration))
+  if (_active && (millis() > _lastActivation + _duration))
   {
     off();
   }
@@ -73,7 +77,7 @@ void Pump::deactivate(int h, int d)
 
 void Pump::checkTimeout()
 {
-  if (active && (millis() > lastActivation + timeout))
+  if (_active && (millis() > _lastActivation + _timeout))
   {
     off();
   }

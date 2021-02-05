@@ -36,9 +36,9 @@ class TimedDevice {
 
     protected:
 
-      bool active = 0; // device status on/off
-      unsigned long lastActivation = 0;
-      unsigned long activations = 0;
+      bool _active = 0; // device status on/off
+      unsigned long _lastActivation = 0;
+      unsigned long _activations = 0;
 
 };
 

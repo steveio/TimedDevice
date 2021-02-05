@@ -7,20 +7,20 @@
 
 Relay::Relay(int pinId)
 {
-  pinId = pinId;
+  _pinId = pinId;
 };
 
 
 void Relay::on()
 {
-    active = 1;
-    digitalWrite(pinId, HIGH);
-    activations++;
-    lastActivation = millis();
+    _active = 1;
+    digitalWrite(_pinId, HIGH);
+    _activations++;
+    _lastActivation = millis();
 }
 
 void Relay::off()
 {
-    active = 0;
-    digitalWrite(pinId, LOW);
+    _active = 0;
+    digitalWrite(_pinId, LOW);
 }

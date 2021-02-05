@@ -11,13 +11,13 @@ void TimedDevice::initTimer(Timer t)
 
 bool TimedDevice::isActive()
 {
-	return active;
+	return _active;
 }
 
 // toggle device on/off
 void TimedDevice::toggle()
 {
-  if (!active)
+  if (!_active)
   {
     on();
   } else {
@@ -41,7 +41,7 @@ void TimedDevice::scheduledActivation(int h, int d)
     return;
   }
 
-  if(!active)
+  if(!_active)
   {
     on();
   }
@@ -49,5 +49,5 @@ void TimedDevice::scheduledActivation(int h, int d)
 
 long TimedDevice::getActivations()
 {
-	return activations;
+	return _activations;
 }

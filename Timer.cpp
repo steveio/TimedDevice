@@ -6,11 +6,11 @@ Timer::Timer() {}
 
 void Timer::init(int t, long * h)
 {
-  type = t;
+  _type = t;
 
-  timerHour = h;
+  _timerHour = h;
 
-  switch(type)
+  switch(_type)
 	{
 		case TIMER_DAY_OF_WEEK:
       //timerDayOfWeek = d;
@@ -21,33 +21,43 @@ void Timer::init(int t, long * h)
 	}
 }
 
+bool Timer::isScheduled(int h)
+{
+  bool status;
+  status = checkBitSet(h, _timerHour);
+  if (!status) return false;
+
+  return true;
+}
+
 /*
  * Is timer scheduled on for given Hour of Day and Day or Week or Day of Month
 */
 bool Timer::isScheduled(int h, int d)
 {
   bool status;
-  switch(type)
+  switch(_type)
 	{
 		case TIMER_DAY_OF_WEEK:
-      status = checkBitSet(d, timerDayOfWeek);
+      status = checkBitSet(d, _timerDayOfWeek);
       if (!status) return false;
   		break;
 		case TIMER_DAY_OF_MONTH:
-      status = checkBitSet(d, timerDayOfMonth);
+      status = checkBitSet(d, _timerDayOfMonth);
       if (!status) return false;
 			break;
 	}
 
-  status = checkBitSet(h, timerHour);
+  status = checkBitSet(h, _timerHour);
   if (!status) return false;
 
   return true;
 }
 
+// @todo
 void Timer::setBit(int n)
 {
-  switch(type)
+  switch(_type)
 	{
 		case TIMER_HOUR_OF_DAY:
 			break;
@@ -69,7 +79,7 @@ bool Timer::checkBitSet(int n, long * l)
 // return hour of next timer on/off event from hour h
 int Timer::getNextEvent(int h)
 {
-  long * l = timerHour;
+  long * l = _timerHour;
 
   bool c = checkBitSet(h, l);
 
@@ -98,7 +108,7 @@ void Timer::printSchedule(Stream &s)
   s.println("Hour Timer: ");
   for(int i=0; i<24; i++)
   {
-    bool isSet = checkBitSet(i, timerHour);
+    bool isSet = checkBitSet(i, _timerHour);
     s.print(i);
     s.print("\t");
     s.println(isSet);
