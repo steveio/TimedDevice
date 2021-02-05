@@ -39,9 +39,6 @@ void Pump::activate(int h)
 {
   bool isScheduled = timer.isScheduled(h);
 
-  Serial.println("Pump Sched: ");
-  Serial.println(isScheduled);
-
   if (!isScheduled)
   {
     return;
