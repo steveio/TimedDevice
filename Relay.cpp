@@ -13,7 +13,7 @@ Relay::Relay(int pinId)
 
 void Relay::on()
 {
-    _active = 1;
+    _active = true;
     digitalWrite(_pinId, HIGH);
     _activations++;
     _lastActivation = millis();
@@ -21,6 +21,6 @@ void Relay::on()
 
 void Relay::off()
 {
-    _active = 0;
+    _active = false;
     digitalWrite(_pinId, LOW);
 }
