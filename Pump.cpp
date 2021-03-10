@@ -5,18 +5,18 @@
 #include "Pump.h"
 
 
-
-Pump::Pump(int pinId, unsigned long duration, unsigned long delay)
-{
-  _pinId = pinId;
-  _duration = duration; // pump active duration
-  _delay = delay; // min time in ms between pump activations
-};
-
-Pump::Pump(int pinId, long timeout)
+Pump::Pump(int pinId, unsigned long timeout)
 {
   _pinId = pinId;
   _timeout = timeout;
+};
+
+
+Pump::Pump(int pinId, unsigned long timeout, unsigned long delay)
+{
+  _pinId = pinId;
+  _timeout = timeout; // pump active duration
+  _delay = delay; // min time in ms between pump activations
 };
 
 
@@ -49,10 +49,6 @@ void Pump::activate(int h)
     on();
   }
 
-  if (_active && (millis() > _lastActivation + _duration))
-  {
-    off();
-  }
 }
 
 void Pump::deactivate(int h, int d)
@@ -65,7 +61,7 @@ void Pump::deactivate(int h, int d)
     return;
   }
 
-  if (_active && (millis() > _lastActivation + _duration))
+  if (_active && (millis() > _lastActivation + _timeout))
   {
     off();
   }

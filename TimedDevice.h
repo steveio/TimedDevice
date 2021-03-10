@@ -19,7 +19,6 @@ Device classes (lamps, pumps etc) extend TimedDevice
 #include <Timer.h>
 
 
-
 class TimedDevice {
     public:
       TimedDevice();
@@ -29,7 +28,7 @@ class TimedDevice {
       void on();
       void off();
       void toggle();
-      void scheduledActivation(int h, int d);
+      void checkTimer(int h, int d);
       long getActivations();
 
       Timer timer;
@@ -39,6 +38,7 @@ class TimedDevice {
       bool _active = 0; // device status on/off
       unsigned long _lastActivation = 0;
       unsigned long _activations = 0;
+      unsigned long _timeout; // auto-deactivate device after _timoeout milliseconds
 
 };
 

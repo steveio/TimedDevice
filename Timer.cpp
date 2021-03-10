@@ -4,22 +4,31 @@
 
 Timer::Timer() {}
 
+// timer hour of day
 void Timer::init(int t, long * h)
 {
   _type = t;
 
   _timerHour = h;
+}
 
+// timer day of week / month
+void Timer::init(int t, long * h, long * d)
+{
+  _type = t;
+
+  _timerHour = h;
   switch(_type)
 	{
 		case TIMER_DAY_OF_WEEK:
-      //timerDayOfWeek = d;
+      _timerDayOfWeek = d;
   		break;
 		case TIMER_DAY_OF_MONTH:
-      //timerDayOfMonth = d;
+      _timerDayOfMonth = d;
 			break;
 	}
 }
+
 
 bool Timer::isScheduled(int h)
 {
@@ -104,6 +113,30 @@ int Timer::getNextEvent(int h)
 
 void Timer::printSchedule(Stream &s)
 {
+
+  switch(_type)
+	{
+		case TIMER_DAY_OF_WEEK:
+      s.println("Day of Week (0 Sun - 6 Sat): ");
+      for(int i=0; i<7; i++)
+      {
+        bool isSet = checkBitSet(i, _timerDayOfWeek);
+        s.print(i);
+        s.print("\t");
+        s.println(isSet);
+      }
+  		break;
+		case TIMER_DAY_OF_MONTH:
+      s.println("Day of Month (0 - 31): ");
+      for(int i=0; i<32; i++)
+      {
+        bool isSet = checkBitSet(i, _timerDayOfMonth);
+        s.print(i);
+        s.print("\t");
+        s.println(isSet);
+      }
+			break;
+	}
 
   s.println("Hour Timer: ");
   for(int i=0; i<24; i++)

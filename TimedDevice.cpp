@@ -31,7 +31,7 @@ void TimedDevice::on() {}
 void TimedDevice::off() {}
 
 // activate/deactivate device according to timer schedule
-void TimedDevice::scheduledActivation(int h, int d)
+void TimedDevice::checkTimer(int h, int d)
 {
   bool isScheduled = timer.isScheduled(h,d);
 

@@ -18,10 +18,10 @@ Timer is recurring and repeats every day or for specified days only
 #include <Arduino.h>
 
 
-// timer type - Hour of Day and (optionally) Day of Week or Day of Month
-#define TIMER_HOUR_OF_DAY 0
-#define TIMER_DAY_OF_WEEK 1
-#define TIMER_DAY_OF_MONTH 2
+// timer type - Recurring Hour of Day and (optionally) Day of Week or Day of Month
+#define TIMER_HOUR_OF_DAY 0x02
+#define TIMER_DAY_OF_WEEK 0x04
+#define TIMER_DAY_OF_MONTH 0x06
 
 
 class Timer {
@@ -29,6 +29,7 @@ class Timer {
 
       Timer();
       void init(int type, long * h);
+      void init(int type, long * h, long * d);
       bool isScheduled(int h);
       bool isScheduled(int h, int d);
       void printSchedule(Stream &s);
