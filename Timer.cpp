@@ -195,33 +195,33 @@ void Timer::printSchedule(Stream &s)
   switch(_type)
 	{
 		case TIMER_DAY_OF_WEEK:
-      s.println("Day of Week (0 Sun - 6 Sat): ");
+      s.println(F("Day of Week (0 Sun - 6 Sat): "));
       for(int i=0; i<7; i++)
       {
         bool isSet = _checkBitSet(i, _timerDayOfWeek);
         s.print(i);
-        s.print("\t");
+        s.print(F("\t"));
         s.println(isSet);
       }
   		break;
 		case TIMER_DAY_OF_MONTH:
-      s.println("Day of Month (0 - 31): ");
+      s.println(F("Day of Month (0 - 31): "));
       for(int i=0; i<32; i++)
       {
         bool isSet = _checkBitSet(i, _timerDayOfMonth);
         s.print(i);
-        s.print("\t");
+        s.print(F("\t"));
         s.println(isSet);
       }
 			break;
 	}
 
-  s.println("Hour Timer: ");
+  s.println(F("Hour Timer: "));
   for(int i=0; i<24; i++)
   {
     bool isSet = _checkBitSet(i, _timerHour);
     s.print(i);
-    s.print("\t");
+    s.print(F("\t"));
     s.println(isSet);
   }
 
