@@ -1,4 +1,4 @@
-Arduino Timed Device Librry
+Arduino Timed Device Library
 
 Simple & lightweight timer based scheduling for on/off devices
 
