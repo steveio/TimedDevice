@@ -214,15 +214,31 @@ void Timer::printSchedule(Stream &s)
         s.println(isSet);
       }
 			break;
+    case TIMER_MINUTE:
+      for(int i=0; i<_timeArray->n; i++)
+      {
+        s.print(F("On/Off:\t"));
+        s.print(_timeArray->onTime[i].Hour);
+        s.print(F(":"));
+        char m[2];
+        sprintf(m, "%02u" , _timeArray->onTime[i].Min);
+        s.print(m);
+        s.print(F("\t->\t"));
+        s.print(_timeArray->offTime[i].Hour);
+        s.print(F(":"));
+        sprintf(m, "%02u" , _timeArray->offTime[i].Min);
+        s.println(m);
+      }
+      break;
+    default:
+      s.println(F("Hour Timer: "));
+      for(int i=0; i<24; i++)
+      {
+        bool isSet = _checkBitSet(i, _timerHour);
+        s.print(i);
+        s.print(F("\t"));
+        s.println(isSet);
+      }
+
 	}
-
-  s.println(F("Hour Timer: "));
-  for(int i=0; i<24; i++)
-  {
-    bool isSet = _checkBitSet(i, _timerHour);
-    s.print(i);
-    s.print(F("\t"));
-    s.println(isSet);
-  }
-
 }
