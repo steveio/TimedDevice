@@ -27,13 +27,8 @@ class Pump: public TimedDevice
     Pump(int pinId, unsigned long timeout, unsigned long delay);
     void on();
     void off();
-    void activate(int h);
-    void deactivate(int h, int d);
-    void checkTimeout();
 
     int _pinId; // digital pin relay is wired to
-    unsigned long _timeout; // pump active duration ms
-    unsigned long _delay; // min time in ms between pump activations
 
   protected:
 

@@ -28,8 +28,12 @@ class TimedDevice {
       void on();
       void off();
       void toggle();
+      void activate(int h);
+      void deactivate(int h, int d);
       void checkTimer(int h, int d);
+      void checkTimeout();
       long getActivations();
+
 
       Timer timer;
 
@@ -39,6 +43,7 @@ class TimedDevice {
       unsigned long _lastActivation = 0;
       unsigned long _activations = 0;
       unsigned long _timeout; // auto-deactivate device after _timoeout milliseconds
+      unsigned long _delay; // min time in ms between activations
 
 };
 
