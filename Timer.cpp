@@ -188,6 +188,10 @@ int Timer::getNextEvent(int h)
   }
 }
 
+struct tmElementArray_t * Timer::getTimeArray()
+{
+  return _timeArray;
+}
 
 void Timer::printSchedule(Stream &s)
 {
@@ -223,7 +227,7 @@ void Timer::printSchedule(Stream &s)
         char m[2];
         sprintf(m, "%02u" , _timeArray->onTime[i].Min);
         s.print(m);
-        s.print(F("\t->\t"));
+        s.print(F(" -> "));
         s.print(_timeArray->offTime[i].Hour);
         s.print(F(":"));
         sprintf(m, "%02u" , _timeArray->offTime[i].Min);

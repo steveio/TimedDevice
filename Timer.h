@@ -70,6 +70,7 @@ class Timer {
       bool isScheduled(int h, int d);
       bool isScheduled(int m, int h, int d);
       bool isScheduled(unsigned long ts);
+      struct tmElementArray_t * getTimeArray();
 
       void printSchedule(Stream &s);
       int getNextEvent(int h);
