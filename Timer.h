@@ -99,6 +99,7 @@ class Timer {
         bool _checkBitSet(int n, long * l);
         bool _checkTimer(int m, int h, int d);
         bool _checkTimeArray(unsigned long ts);
+        bool _checkDayOfWeek(int d);
         void _setBit(int n);
 };
 

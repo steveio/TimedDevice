@@ -82,29 +82,34 @@ bool Timer::isScheduled(int m, int h, int d)
  */
 bool Timer::isScheduled(unsigned long ts)
 {
-    // first check day (d) with timer Day of Week bitmap
 
-    int weekday = ((ts + 4) % 7) + 1;
-    bool status;
+    int weekday = ((ts / 86400) + 4) % 7;
+    if (!_checkDayOfWeek(weekday))
     {
       return false;
     }
 
-    // compute elapsed secs from previous midnight
-    unsigned long elapsedTime = ts % SECS_PER_DAY;
-
-    return _checkTimeArray(elapsedTime);
+    return _checkTimeArray(ts);
 }
 
-
-bool Timer::_checkTimer(int m, int h, int d)
+/*
+ *  Check if day (d) is set in tmElementArray_t Day of Week bitmap
+ */
+bool Timer::_checkDayOfWeek(int d)
 {
-
-  // first check day (d) with timer Day of Week bitmap
   bool status;
   long * p = &_timeArray->Wday;
   status = _checkBitSet(d, p);
   if (!status)
+  {
+    return false;
+  }
+}
+
+bool Timer::_checkTimer(int m, int h, int d)
+{
+
+  if (!_checkDayOfWeek(d))
   {
     return false;
   }
@@ -120,6 +125,10 @@ bool Timer::_checkTimer(int m, int h, int d)
 
 bool Timer::_checkTimeArray(unsigned long ts)
 {
+
+  // convert fully qualified timestamp to elapsed secs from previous midnight
+  unsigned long elapsedTime = ts % SECS_PER_DAY;
+
   unsigned long s1, s2, onTime, offTime;
 
   // check each timeArray on/off pair
@@ -132,7 +141,7 @@ bool Timer::_checkTimeArray(unsigned long ts)
     s2 = _timeArray->offTime[i].Hour * SECS_PER_HOUR;
     offTime = s1 + s2;
 
-    if (ts >= onTime && ts <= offTime)
+    if (elapsedTime >= onTime && elapsedTime <= offTime)
     {
       return true;
     }
