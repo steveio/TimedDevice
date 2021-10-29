@@ -95,8 +95,9 @@ class Timer {
       // Array specifying 1..n on times
       struct tmElementArray_t * _timeArray;
 
+      bool _checkBitSet(int n, long * l);
+
     private:
-        bool _checkBitSet(int n, long * l);
         bool _checkTimer(int m, int h, int d);
         bool _checkTimeArray(unsigned long ts);
         bool _checkDayOfWeek(int d);
