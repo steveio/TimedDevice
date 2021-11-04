@@ -10,6 +10,14 @@ Granularity is hour (of day) and day (of week or month) unit
 
 Timer is recurring and repeats every day or for specified days only
 
+Todo -
+
+
+
+
+Link - https://github.com/steveio/TimedDevice
+Copyright (C) 2020  Steven G Edwards
+
 */
 
 #ifndef TIMER_H_
@@ -53,7 +61,7 @@ typedef struct tmElements_t {
 // container for n pairs of on/off times
 typedef struct tmElementArray_t {
   size_t n;
-  unsigned long Wday;   // bitmap - days of week (bit index 0 = Sun -> 6 Sat)
+  int Wday;   // bitmap - days of week (bit index 0 = Sun -> 6 Sat)
   struct tmElements_t onTime[SZ_TIME_ELEMENT];
   struct tmElements_t offTime[SZ_TIME_ELEMENT];
 };
@@ -63,17 +71,42 @@ class Timer {
     public:
 
       Timer();
-      void init(int type, long * h);
-      void init(int type, long * h, long * d);
-      void init(int type, struct tmElementArray_t * onTime);
+
+      // @note timer is loosely coupled to RTC so current tkmestamp is passed as argument
+      // allowing computation of nextEvent timestamp, used by TimerManager class to orchestrate execution
+
+      // initialise a timer (hour/day of week bitmask or on time),
+      // then check timer status by calling isScheduled()
+      void init(int type, unsigned long ts, long * h);
+      void init(int type, unsigned long ts, long * h, long * d);
+      void init(int type, unsigned long ts, struct tmElementArray_t * onTime);
+
       bool isScheduled(int h);
       bool isScheduled(int h, int d);
       bool isScheduled(int m, int h, int d);
       bool isScheduled(unsigned long ts);
+
+
+      // schedule a callback event -
+      // recursively call a function (or class method wrapped in a function) according to a timer schedule
+
+      // recurring timer (every day at specific time)
+      bool schedule(unsigned long ts, struct tmElementArray_t * onTime, void (*function)(void));
+      // recurring timer (specific weekdays at specific time
+      bool schedule(unsigned long ts, struct tmElementArray_t * onTime, long * d, void (*function)(void));
+
       struct tmElementArray_t * getTimeArray();
 
+      // return time of next on/off event from an hour bitmask timer definition
+      int getNextEvent(int h, bool type = NULL);
       void printSchedule(Stream &s);
-      int getNextEvent(int h);
+
+      // given a timestamp return hour (relative to unix epoch GMT)
+      int getHourGMTFromTS(unsigned long ts);
+
+      void setCallback(void (*function)(void)){
+    		this->function_callback = function;
+    	}
 
     protected:
 
@@ -97,11 +130,37 @@ class Timer {
 
       bool _checkBitSet(int n, long * l);
 
+      virtual void call();
+
     private:
         bool _checkTimer(int m, int h, int d);
         bool _checkTimeArray(unsigned long ts);
         bool _checkDayOfWeek(int d);
         void _setBit(int n);
+
+        void (*function_callback)(void);
+
+
 };
 
+
+// TimerClassTemplate<MyClass> timer(&instance, &MyClass::callMethod);
+
+template <class Obj>
+
+class TimerClassTemplate: public Timer {
+public:
+	TimerClassTemplate(Obj *object, void (Obj::*callback)(void)) {
+		this->object = object;
+		this->method = callback;
+	}
+
+	virtual void call() {
+		return (object->*method)();
+	}
+
+private:
+	Obj *object;
+	void (Obj::*method)(void);
+};
 #endif

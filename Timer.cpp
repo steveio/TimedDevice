@@ -1,3 +1,11 @@
+/**
+
+Timer.cpp
+
+Link - https://github.com/steveio/TimedDevice
+Copyright (C) 2020  Steven G Edwards
+
+**/
 
 #include "Timer.h"
 
@@ -5,15 +13,18 @@
 Timer::Timer() {}
 
 // timer hour of day
-void Timer::init(int t, long * h)
+void Timer::init(int t, unsigned long ts, long * h)
 {
   _type = t;
 
   _timerHour = h;
+
+  // @todo compute next event timestamp
+
 }
 
 // timer day of week / month
-void Timer::init(int t, long * h, long * d)
+void Timer::init(int t, unsigned long ts, long * h, long * d)
 {
   _type = t;
 
@@ -29,7 +40,7 @@ void Timer::init(int t, long * h, long * d)
 	}
 }
 
-void Timer::init(int t, struct tmElementArray_t * timeArray)
+void Timer::init(int t, unsigned long ts, struct tmElementArray_t * timeArray)
 {
   _type = t;
   _timeArray = timeArray;
@@ -92,13 +103,27 @@ bool Timer::isScheduled(unsigned long ts)
     return _checkTimeArray(ts);
 }
 
+// recurring timer (every day at specific time)
+bool schedule(unsigned long ts, struct tmElementArray_t * onTime, void (*function)(void))
+{
+
+}
+
+
+// recurring timer (specific weekdays at specific time
+bool schedule(unsigned long ts, struct tmElementArray_t * onTime, long * d, void (*function)(void))
+{
+
+}
+
+
 /*
  *  Check if day (d) is set in tmElementArray_t Day of Week bitmap
  */
 bool Timer::_checkDayOfWeek(int d)
 {
   bool status;
-  long * p = &_timeArray->Wday;
+  long * p = (long*) &_timeArray->Wday;
   status = _checkBitSet(d, p);
   if (!status)
   {
@@ -150,21 +175,6 @@ bool Timer::_checkTimeArray(unsigned long ts)
   return false;
 }
 
-// @todo
-void Timer::_setBit(int n)
-{
-  switch(_type)
-	{
-		case TIMER_HOUR_OF_DAY:
-			break;
-		case TIMER_DAY_OF_WEEK:
-			break;
-		case TIMER_DAY_OF_MONTH:
-			break;
-	}
-
-}
-
 // Timer bitmask - check if bit at pos n is set in 32bit long l
 bool Timer::_checkBitSet(int n, long * l)
 {
@@ -172,8 +182,22 @@ bool Timer::_checkBitSet(int n, long * l)
   return b;
 }
 
-// return hour of next timer on/off event from hour h
-int Timer::getNextEvent(int h)
+void Timer::call() {
+	if(function_callback != NULL) {
+		function_callback();
+	}
+}
+
+int Timer::getHourGMTFromTS(unsigned long ts)
+{
+  unsigned long elapsedT1 = ts % SECS_PER_DAY;
+  unsigned long elapsedT2 = elapsedT1 % SECS_PER_HOUR;
+  int h = (elapsedT1 - elapsedT2) / SECS_PER_HOUR;
+  return h;
+}
+
+
+int Timer::getNextEvent(int h, bool type = NULL)
 {
   long * l = _timerHour;
 
@@ -184,7 +208,10 @@ int Timer::getNextEvent(int h)
     bool n = _checkBitSet(i, l);
     if (n != c)
     {
-      return i;
+      if (type == NULL || n == type)
+      {
+        return i;
+      }
     }
   }
   for(int i=0; i<=h; i++)
@@ -192,7 +219,10 @@ int Timer::getNextEvent(int h)
     bool n = _checkBitSet(i, l);
     if (n != c)
     {
-      return i;
+      if (type == NULL || n == type)
+      {
+        return i;
+      }
     }
   }
 }
