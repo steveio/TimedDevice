@@ -7,6 +7,9 @@ attributes track device status, number of activations, time of last activation e
 
 Device classes (lamps, pumps etc) extend TimedDevice
 
+Link - https://github.com/steveio/TimedDevice
+Copyright (C) 2020  Steven G Edwards
+
 
 */
 

@@ -1,3 +1,12 @@
+/**
+
+TimedDevice.cpp
+
+Link - https://github.com/steveio/TimedDevice
+Copyright (C) 2020  Steven G Edwards
+
+
+**/
 
 #include "TimedDevice.h"
 
