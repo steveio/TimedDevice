@@ -196,6 +196,11 @@ int Timer::getHourGMTFromTS(unsigned long ts)
   return h;
 }
 
+int Timer::getDayOfWeekFromTS(unsigned long ts)
+{
+  int weekday = ((ts / 86400) + 4) % 7;
+  return weekday;
+}
 
 int Timer::getNextEvent(int h, bool type = NULL)
 {

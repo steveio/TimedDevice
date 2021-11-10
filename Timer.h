@@ -101,6 +101,7 @@ class Timer {
 
       // given a timestamp return hour (relative to unix epoch GMT)
       int getHourGMTFromTS(unsigned long ts);
+      int getDayOfWeekFromTS(unsigned long ts);
 
       void setCallback(void (*function)(void)){
     		this->function_callback = function;

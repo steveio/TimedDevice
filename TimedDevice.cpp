@@ -27,33 +27,28 @@ bool TimedDevice::isActive()
 void TimedDevice::on() {}
 void TimedDevice::off() {}
 
-// activate/deactivate device with bitmap hour schedule
-void TimedDevice::update(int h, int d, unsigned long ts)
-{
-	_millis = ts;
-
-	if (timer.isScheduled(h,d))
-  {
-		activate();
-  } else {
-		deactivate();
-	}
-
-}
-
-// activate/deactivate device with point in time schedule
+// activate/deactivate scheduled device
 void TimedDevice::update(unsigned long ts)
 {
 	_millis = ts;
+	bool isActive = false;
 
-	if (!timer.isScheduled(ts))
+	if (timer.getType() == TIMER_MINUTE) // Time based schedule
+	{
+		isActive = timer.isScheduled(ts);
+	} else { // Bitmask schedule
+		int h = timer.getHourGMTFromTS(ts);
+	  int d = timer.getDayOfWeekFromTS(ts);
+		isActive = timer.isScheduled(h,d);
+	}
+
+	if (isActive)
   {
-		deactivate();
-  } else {
 		activate();
+  } else {
+		deactivate();
 	}
 }
-
 
 bool TimedDevice::activate()
 {

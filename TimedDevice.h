@@ -27,7 +27,6 @@ class TimedDevice {
 
       void initTimer(Timer t);
       bool isActive();
-      void update(int h, int d, unsigned long ts);
       void update(unsigned long ts);
       long getActivations();
 
