@@ -47,7 +47,7 @@ void setup() {
   Serial.begin(115200);
 
   lamp1Timer.init(TIMER_HOUR_OF_DAY, &lamp1TimerBitmask);
-  lamp1.initTimer(lamp1Timer);
+  lamp1.initTimer();
 
   lamp2Timer.init(TIMER_DAY_OF_WEEK, &lamp1TimerBitmask, &lamp2TimerDayOfWeekBitmask);
   lamp2.initTimer(lamp2Timer);
@@ -94,7 +94,7 @@ void setup() {
 
 void loop() {
 
-  bool isActive, isScheduled;
+  bool isActive, uled;
 
   Serial.println("Lamp1 schedule: ");
   lamp1.timer.printSchedule(Serial);
@@ -149,13 +149,6 @@ void loop() {
   Serial.println(lamp4.timer.isScheduled(0, 8, 1));
 
 
-  /*
-  Serial.println("Pump1 isScheduled 19:00: ");
-  Serial.println(pump1.timer.isScheduled(19, NULL));
-
-  Serial.println("Pump1 isScheduled 02:00: ");
-  Serial.println(pump1.timer.isScheduled(2, NULL));
-  */
 
 
   delay(5000);
