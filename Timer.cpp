@@ -12,19 +12,21 @@ Copyright (C) 2020  Steven G Edwards
 
 Timer::Timer() {}
 
+int Timer::getType()
+{
+  return _type;
+}
+
 // timer hour of day
-void Timer::init(int t, unsigned long ts, long * h)
+void Timer::init(int t, long * h)
 {
   _type = t;
 
   _timerHour = h;
-
-  // @todo compute next event timestamp
-
 }
 
 // timer day of week / month
-void Timer::init(int t, unsigned long ts, long * h, long * d)
+void Timer::init(int t, long * h, long * d)
 {
   _type = t;
 
@@ -40,7 +42,7 @@ void Timer::init(int t, unsigned long ts, long * h, long * d)
 	}
 }
 
-void Timer::init(int t, unsigned long ts, struct tmElementArray_t * timeArray)
+void Timer::init(int t, struct tmElementArray_t * timeArray)
 {
   _type = t;
   _timeArray = timeArray;
@@ -109,13 +111,11 @@ bool schedule(unsigned long ts, struct tmElementArray_t * onTime, void (*functio
 
 }
 
-
 // recurring timer (specific weekdays at specific time
 bool schedule(unsigned long ts, struct tmElementArray_t * onTime, long * d, void (*function)(void))
 {
 
 }
-
 
 /*
  *  Check if day (d) is set in tmElementArray_t Day of Week bitmap

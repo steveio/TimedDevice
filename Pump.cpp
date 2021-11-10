@@ -5,31 +5,31 @@
 #include "Pump.h"
 
 
-Pump::Pump(int pinId, unsigned long timeout)
+Pump::Pump(int pinId, unsigned long duration)
 {
   _pinId = pinId;
-  _timeout = timeout;
+  _duration = duration;
 };
 
 
-Pump::Pump(int pinId, unsigned long timeout, unsigned long delay)
+Pump::Pump(int pinId, unsigned long duration, unsigned long delay)
 {
   _pinId = pinId;
-  _timeout = timeout; // pump active duration
+  _duration = duration; // pump active duration
   _delay = delay; // min time in ms between pump activations
 };
 
 
 void Pump::on()
 {
-    digitalWrite(_pinId, LOW);
-    _active = true;
-    _activations++;
-    _lastActivation = millis();
+  _active = true;
+  digitalWrite(_pinId, LOW);
+  _activations++;
+  _lastActivation = millis();
 }
 
 void Pump::off()
 {
-    _active = false;
-    digitalWrite(_pinId, HIGH);
+  _active = false;
+  digitalWrite(_pinId, HIGH);
 }

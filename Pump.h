@@ -23,8 +23,8 @@ class Pump: public TimedDevice
 {
 
   public:
-    Pump(int pinId, unsigned long timeout);
-    Pump(int pinId, unsigned long timeout, unsigned long delay);
+    Pump(int pinId, unsigned long duration);
+    Pump(int pinId, unsigned long duration, unsigned long delay);
     void on();
     void off();
 

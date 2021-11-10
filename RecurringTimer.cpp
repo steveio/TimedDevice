@@ -1,20 +1,15 @@
 
-
-#include "Timer.h"
 #include "RecurringTimer.h"
-#include "TimedDevice.h"
-
 
 RecurringTimer::RecurringTimer() {}
 
 
-void RecurringTimer::init(int t, long * h, unsigned long timerInterval,  unsigned long eventDuration, unsigned long ts)
+void RecurringTimer::init(int t, unsigned long ts, struct tmElementArray_t * fromTime, unsigned long interval,  unsigned long duration)
 {
 
   _type = t;
-  _timerHour = h;
-  _timerInterval = timerInterval;
-  _eventDuration = eventDuration;
+  _interval = interval;
+  _duration = duration;
 
   // convert fully qualified timestamp to elapsed secs from previous midnight
   unsigned long elapsedTime = ts % SECS_PER_DAY;
@@ -31,7 +26,7 @@ bool RecurringTimer::isScheduled(int h, unsigned long ts)
   // convert fully qualified timestamp to elapsed secs from previous midnight
   unsigned long elapsedTime = ts % SECS_PER_DAY;
 
-  if (elapsedTime >= _nextEvent && elapsedTime <= _nextEvent + _eventDuration)
+  if (elapsedTime >= _nextEvent && elapsedTime <= _nextEvent + _duration)
   {
     status = true;
   }
@@ -39,9 +34,9 @@ bool RecurringTimer::isScheduled(int h, unsigned long ts)
   status = _checkBitSet(h, _timerHour); // check hour timer
 
 
-  if (ts > _nextEvent + _timerInterval)
+  if (ts > _nextEvent + _interval)
   {
-    _getNextEvent(elapsedTime, _timerInterval);
+    _getNextEvent(elapsedTime, _interval);
   }
 
   return status;

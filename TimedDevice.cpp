@@ -23,83 +23,57 @@ bool TimedDevice::isActive()
 	return _active;
 }
 
-// toggle device on/off
-void TimedDevice::toggle()
-{
-  if (!_active)
-  {
-    on();
-  } else {
-    off();
-  }
-}
-
 // extending classes implement on/off according to device hardware interface
 void TimedDevice::on() {}
-
 void TimedDevice::off() {}
 
-// activate/deactivate device according to timer schedule, w/ duration & interval (delay)
-void TimedDevice::activate(int h)
+// activate/deactivate device with bitmap hour schedule
+void TimedDevice::update(int h, int d, unsigned long ts)
 {
-  bool isScheduled = timer.isScheduled(h);
+	_millis = ts;
 
-  if (!isScheduled)
+	if (timer.isScheduled(h,d))
   {
-    return;
-  }
-
-  if(!_active && (_lastActivation == 0 || (millis() > _lastActivation + _delay)))
-  {
-    on();
-  }
+		activate();
+  } else {
+		deactivate();
+	}
 
 }
 
-void TimedDevice::deactivate(int h, int d)
+// activate/deactivate device with point in time schedule
+void TimedDevice::update(unsigned long ts)
 {
-  bool isScheduled = timer.isScheduled(h,d);
+	_millis = ts;
 
-  if (!isScheduled)
+	if (!timer.isScheduled(ts))
   {
-    off();
-    return;
-  }
-
-  if (_active && (millis() > _lastActivation + _timeout))
-  {
-    off();
-  }
-
+		deactivate();
+  } else {
+		activate();
+	}
 }
 
 
-// activate/deactivate device according to timer schedule
-void TimedDevice::checkTimer(int h, int d)
+bool TimedDevice::activate()
 {
-  bool isScheduled = timer.isScheduled(h,d);
-
-  if (!isScheduled)
-  {
-    off();
-    return;
-  }
-
-  if(!_active)
+	if(!_active && (_lastActivation == 0 || (_millis > _lastActivation + _delay)))
   {
     on();
+		return true;
+  }
+}
+
+bool TimedDevice::deactivate()
+{
+  if (_active && (_millis > _lastActivation + _duration))
+  {
+    off();
+		return true;
   }
 }
 
 long TimedDevice::getActivations()
 {
 	return _activations;
-}
-
-void TimedDevice::checkTimeout()
-{
-  if (_active && (millis() > _lastActivation + _timeout))
-  {
-    off();
-  }
 }

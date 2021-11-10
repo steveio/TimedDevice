@@ -37,7 +37,7 @@ typedef unsigned long time_t;
 
 
 // BITMASK TIMER TYPES - Precision of 1 Hour Intervals
-// timer type - Recurring Hour of Day and (optionally) Day of Week or Day of Month
+// Recurring Hour and (optionally) Day of Week or Day of Month
 #define TIMER_HOUR_OF_DAY 0x02
 #define TIMER_DAY_OF_WEEK 0x04
 #define TIMER_DAY_OF_MONTH 0x06
@@ -48,7 +48,7 @@ typedef unsigned long time_t;
 
 // time element - HH:MM (Hour must be specified as 24 hour clock)
 typedef struct tmElements_t {
-  //uint8_t Second;
+  uint8_t Second;
   uint8_t Min;
   uint8_t Hour;
   //uint8_t Day;
@@ -72,14 +72,11 @@ class Timer {
 
       Timer();
 
-      // @note timer is loosely coupled to RTC so current tkmestamp is passed as argument
-      // allowing computation of nextEvent timestamp, used by TimerManager class to orchestrate execution
-
       // initialise a timer (hour/day of week bitmask or on time),
       // then check timer status by calling isScheduled()
-      void init(int type, unsigned long ts, long * h);
-      void init(int type, unsigned long ts, long * h, long * d);
-      void init(int type, unsigned long ts, struct tmElementArray_t * onTime);
+      void init(int type, long * h);
+      void init(int type, long * h, long * d);
+      void init(int type, struct tmElementArray_t * onTime);
 
       bool isScheduled(int h);
       bool isScheduled(int h, int d);
@@ -96,6 +93,7 @@ class Timer {
       bool schedule(unsigned long ts, struct tmElementArray_t * onTime, long * d, void (*function)(void));
 
       struct tmElementArray_t * getTimeArray();
+      int getType();
 
       // return time of next on/off event from an hour bitmask timer definition
       int getNextEvent(int h, bool type = NULL);
