@@ -4,47 +4,54 @@
 RecurringTimer::RecurringTimer() {}
 
 
-void RecurringTimer::init(int t, unsigned long ts, struct tmElementArray_t * fromTime, unsigned long interval,  unsigned long duration)
+void RecurringTimer::init(int t, unsigned long ts, struct tmElementArray_t * startTime, unsigned long interval)
 {
 
   _type = t;
   _interval = interval;
-  _duration = duration;
 
-  // convert fully qualified timestamp to elapsed secs from previous midnight
-  unsigned long elapsedTime = ts % SECS_PER_DAY;
+  // convert from time HH:MM:SS to timestamp relative to startTime
+  unsigned long s1, s2, s3, eventTs;
 
-  _getNextEvent(elapsedTime, 0);
+  s1 = fromTime.Sec;
+  s2 = fromTime.Min * SECS_PER_MIN;
+  s3 = fromTime.Hour * SECS_PER_HOUR;
+
+  eventTs = s1 + s2 + s3;
+
+  // compute start timestamp
+  unsigned long elapsedTs = ts % SECS_PER_DAY;
+
+  if (eventTs + elapsedTs < ts)
+  {
+    _startTs = eventTs + elapsedTs + SECS_PER_DAY;
+  } else {
+    _startTs = eventTs + elapsedTs;
+  }
+
+  // compute timer next event
+  _getNextEvent(_startTs, interval);
 
 }
 
-bool RecurringTimer::isScheduled(int h, unsigned long ts)
+bool RecurringTimer::update(unsigned long ts)
 {
-
-  bool status = false;
-
-  // convert fully qualified timestamp to elapsed secs from previous midnight
-  unsigned long elapsedTime = ts % SECS_PER_DAY;
-
-  if (elapsedTime >= _nextEvent && elapsedTime <= _nextEvent + _duration)
+  if (ts == _nextEvent)
   {
-    status = true;
+    _getNextEvent(_nextEvent, interval);
+
+    if (_actvations-- > 0)
+    {
+      if (function_callback)
+      {
+        call();
+      }
+      return true;
+    }
   }
-
-  status = _checkBitSet(h, _timerHour); // check hour timer
-
-
-  if (ts > _nextEvent + _interval)
-  {
-    _getNextEvent(elapsedTime, _interval);
-  }
-
-  return status;
 }
 
 void RecurringTimer::_getNextEvent(unsigned long ts, unsigned long interval)
 {
-  unsigned long elapsedTime = ts % SECS_PER_DAY;
-
-  _nextEvent = elapsedTime + interval;
+  _nextEvent = ts + interval;
 }
