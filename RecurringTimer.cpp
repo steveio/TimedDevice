@@ -4,7 +4,7 @@
 RecurringTimer::RecurringTimer() {}
 
 
-void RecurringTimer::init(int t, unsigned long ts, struct tmElementArray_t * startTime, unsigned long interval)
+void RecurringTimer::init(int t, unsigned long ts, struct tmElements_t * startTime, unsigned long interval)
 {
 
   _type = t;
@@ -13,9 +13,9 @@ void RecurringTimer::init(int t, unsigned long ts, struct tmElementArray_t * sta
   // convert from time HH:MM:SS to timestamp relative to startTime
   unsigned long s1, s2, s3, eventTs;
 
-  s1 = fromTime.Sec;
-  s2 = fromTime.Min * SECS_PER_MIN;
-  s3 = fromTime.Hour * SECS_PER_HOUR;
+  s1 = startTime->Sec;
+  s2 = startTime->Min * SECS_PER_MIN;
+  s3 = startTime->Hour * SECS_PER_HOUR;
 
   eventTs = s1 + s2 + s3;
 
@@ -38,9 +38,9 @@ bool RecurringTimer::update(unsigned long ts)
 {
   if (ts == _nextEvent)
   {
-    _getNextEvent(_nextEvent, interval);
+    _getNextEvent(_nextEvent, _interval);
 
-    if (_actvations-- > 0)
+    if (_activations-- > 0)
     {
       if (function_callback)
       {

@@ -48,7 +48,7 @@ typedef unsigned long time_t;
 
 // time element - HH:MM (Hour must be specified as 24 hour clock)
 typedef struct tmElements_t {
-  uint8_t Second;
+  uint8_t Sec;
   uint8_t Min;
   uint8_t Hour;
   //uint8_t Day;
@@ -131,13 +131,14 @@ class Timer {
 
       virtual void call();
 
+      void (*function_callback)(void);
+
     private:
         bool _checkTimer(int m, int h, int d);
         bool _checkTimeArray(unsigned long ts);
         bool _checkDayOfWeek(int d);
         void _setBit(int n);
 
-        void (*function_callback)(void);
 
 
 };

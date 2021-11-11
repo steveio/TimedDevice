@@ -29,7 +29,7 @@ class RecurringTimer: public Timer
 public:
 
   RecurringTimer();
-  void init(int t, struct tmElementArray_t * startTime, unsigned long interval);
+  void init(int t, unsigned long ts, struct tmElements_t * startTime, unsigned long interval);
   bool update(unsigned long ts);
 
   protected:
