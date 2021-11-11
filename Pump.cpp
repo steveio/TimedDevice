@@ -22,14 +22,14 @@ Pump::Pump(int pinId, unsigned long duration, unsigned long delay)
 
 void Pump::on()
 {
-  _active = true;
   digitalWrite(_pinId, LOW);
+  _active = true;
   _activations++;
   _lastActivation = millis();
 }
 
 void Pump::off()
 {
-  _active = false;
   digitalWrite(_pinId, HIGH);
+  _active = false;
 }

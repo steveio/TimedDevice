@@ -31,18 +31,18 @@ void TimedDevice::off() {}
 void TimedDevice::update(unsigned long ts)
 {
 	_millis = ts;
-	bool isActive = false;
+	bool isScheduled = false;
 
 	if (timer.getType() == TIMER_MINUTE) // Time based schedule
 	{
-		isActive = timer.isScheduled(ts);
+		isScheduled = timer.isScheduled(ts);
 	} else { // Bitmask schedule
 		int h = timer.getHourGMTFromTS(ts);
 	  int d = timer.getDayOfWeekFromTS(ts);
-		isActive = timer.isScheduled(h,d);
+		isScheduled = timer.isScheduled(h,d);
 	}
 
-	if (isActive)
+	if (isScheduled)
   {
 		activate();
   } else {
@@ -52,7 +52,7 @@ void TimedDevice::update(unsigned long ts)
 
 bool TimedDevice::activate()
 {
-	if(!_active && (_lastActivation == 0 || (_millis > _lastActivation + _delay)))
+	if(!_active && (_lastActivation == 0 || (_millis >= _lastActivation + _delay)))
   {
     on();
 		return true;
@@ -61,7 +61,7 @@ bool TimedDevice::activate()
 
 bool TimedDevice::deactivate()
 {
-  if (_active && (_millis > _lastActivation + _duration))
+  if (_active && (_millis >= _lastActivation + _duration))
   {
     off();
 		return true;
