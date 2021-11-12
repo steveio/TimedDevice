@@ -237,6 +237,7 @@ struct tmElementArray_t * Timer::getTimeArray()
   return _timeArray;
 }
 
+/*
 void Timer::printSchedule(Stream &s)
 {
 
@@ -290,3 +291,4 @@ void Timer::printSchedule(Stream &s)
 
 	}
 }
+*/

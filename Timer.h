@@ -23,7 +23,9 @@ Copyright (C) 2020  Steven G Edwards
 #ifndef TIMER_H_
 #define TIMER_H_
 
-#include <Arduino.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <math.h>
 
 #if !defined(__time_t_defined) // avoid conflict with newlib or other posix libc
 typedef unsigned long time_t;
@@ -97,7 +99,7 @@ class Timer {
 
       // return time of next on/off event from an hour bitmask timer definition
       int getNextEvent(int h, bool type = NULL);
-      void printSchedule(Stream &s);
+      //void printSchedule();
 
       // given a timestamp return hour (relative to unix epoch GMT)
       int getHourGMTFromTS(unsigned long ts);

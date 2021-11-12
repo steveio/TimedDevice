@@ -22,6 +22,7 @@ Copyright (C) 2020  Steven G Edwards
 
 #define TIMER_MILLIS_RECURRING 0x08
 
+#define TIMER_DEFAULT_ACTIVATIONS 1
 
 class RecurringTimer: public Timer
 {
@@ -29,6 +30,7 @@ class RecurringTimer: public Timer
 public:
 
   RecurringTimer();
+  void init(int t, unsigned long ts, unsigned long interval);
   void init(int t, unsigned long ts, struct tmElements_t * startTime, unsigned long interval);
   bool update(unsigned long ts);
 
@@ -37,7 +39,9 @@ public:
     unsigned long  _nextEvent;    // next event timestamp
 
     unsigned long  _interval = 0;     // interval (millisecs)
-    int _activations = 1;         // default no activations per cycle
+    int _activations = TIMER_DEFAULT_ACTIVATIONS;         // default no activations per cycle
+
+    void call();
 
   private:
     void _getNextEvent(unsigned long ts, unsigned long interval);
@@ -45,4 +49,4 @@ public:
 };
 
 
-#endif;
+#endif

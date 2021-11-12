@@ -17,6 +17,7 @@ For 3x 1min activations per Hour Timeout = 60000 ms, Delay = 1140000 ms
 #ifndef PUMP_H_
 #define PUMP_H_
 
+#include <Arduino.h>
 #include <TimedDevice.h>
 
 class Pump: public TimedDevice

@@ -10,8 +10,8 @@ Relay represents a switchable relay activated device typically 5v or AC 240 v ma
 #ifndef RELAY_H_
 #define RELAY_H_
 
+#include <Arduino.h>
 #include <TimedDevice.h>
-
 
 class Relay: public TimedDevice
 {
