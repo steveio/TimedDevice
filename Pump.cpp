@@ -20,16 +20,18 @@ Pump::Pump(int pinId, unsigned long duration, unsigned long delay)
 };
 
 
-void Pump::on()
+void Pump::on(unsigned long ts)
 {
   digitalWrite(_pinId, LOW);
   _active = true;
   _activations++;
-  _lastActivation = millis();
+  _lastActivation = ts;
 }
 
-void Pump::off()
+void Pump::off(unsigned long ts)
 {
   digitalWrite(_pinId, HIGH);
   _active = false;
+  _lastDeActivation = ts;
+
 }

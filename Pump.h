@@ -25,8 +25,8 @@ class Pump: public TimedDevice
   public:
     Pump(int pinId, unsigned long duration);
     Pump(int pinId, unsigned long duration, unsigned long delay);
-    void on();
-    void off();
+    void on(unsigned long ts);
+    void off(unsigned long ts);
 
     int _pinId; // digital pin relay is wired to
 

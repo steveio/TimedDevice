@@ -29,18 +29,21 @@ class TimedDevice {
       bool isActive();
       void update(unsigned long ts);
       long getActivations();
+      unsigned long TimedDevice::getLastActivation();
+      unsigned long TimedDevice::getLastDeActivation();
 
       Timer timer;
 
     protected:
 
-      virtual void on();
-      virtual void off();
+      virtual void on(unsigned long ts);
+      virtual void off(unsigned long ts);
       bool activate();
       bool deactivate();
 
       bool _active = 0; // device status on/off
       unsigned long _lastActivation = 0;
+      unsigned long _lastDeActivation = 0;
       unsigned long _activations = 0;
       unsigned long _duration; // auto-deactivate device after _timoeout milliseconds
       unsigned long _delay; // min time in ms between activations

@@ -11,16 +11,17 @@ Relay::Relay(int pinId)
 };
 
 
-void Relay::on()
+void Relay::on(unsigned long ts)
 {
   digitalWrite(_pinId, HIGH);
   _active = true;
   _activations++;
-  _lastActivation = millis();
+  _lastActivation = ts;
 }
 
-void Relay::off()
+void Relay::off(unsigned long ts)
 {
   digitalWrite(_pinId, LOW);
   _active = false;
+  _lastDeActivation = ts;
 }
