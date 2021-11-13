@@ -9,6 +9,8 @@ Copyright (C) 2020  Steven G Edwards
 
 #include "Timer.h"
 
+using namespace std;
+
 
 Timer::Timer() {}
 
@@ -106,15 +108,21 @@ bool Timer::isScheduled(unsigned long ts)
 }
 
 // recurring timer (every day at specific time)
-bool schedule(unsigned long ts, struct tmElementArray_t * onTime, void (*function)(void))
+bool Timer::schedule(unsigned long ts, struct tmElementArray_t * onTime, void (*function)(void))
 {
 
 }
 
 // recurring timer (specific weekdays at specific time
-bool schedule(unsigned long ts, struct tmElementArray_t * onTime, long * d, void (*function)(void))
+bool Timer::schedule(unsigned long ts, struct tmElementArray_t * onTime, long * d, void (*function)(void))
 {
 
+}
+
+// set timer active time (millisecs)
+void Timer::setDuration(unsigned long t)
+{
+  _duration = t;
 }
 
 /*
@@ -182,10 +190,15 @@ bool Timer::_checkBitSet(int n, long * l)
   return b;
 }
 
-void Timer::call() {
-	if(function_callback != NULL) {
-		function_callback();
-	}
+void Timer::call(const int idx) {
+
+  if (_callbackArr[idx] != NULL)
+  {
+    _callbackArr[idx]();
+  }
+	//if(function_callback != NULL) {
+	//	function_callback();
+	//}
 }
 
 int Timer::getHourGMTFromTS(unsigned long ts)

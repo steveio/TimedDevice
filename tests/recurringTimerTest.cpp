@@ -25,7 +25,12 @@ void activateDevice()
   device.Activate();
 }
 
-void (*pt2Function)() = NULL;
+void deactivateDevice()
+{
+  device.DeActivate();
+}
+
+//void (*timerActiveCallback)() = NULL;
 //bool (DeviceClass::*ptCallback)() = NULL;
 
 
@@ -47,6 +52,7 @@ void setup()
 
   unsigned long ts = millis() / 1000;
   unsigned long interval = 1000 * 5;
+  unsigned long duration = 2000;
 
   /**
   // start timer from specific point in time
@@ -63,12 +69,17 @@ void setup()
   // start timer from now
   timer.init(TIMER_MILLIS_RECURRING, ts, interval);
 
+  // set active duration
+  timer.setDuration(duration);
+
   // set callback func
-  pt2Function = activateDevice;
-  if (pt2Function > 0)
-  {
-    timer.setCallback(pt2Function);
-  }
+
+  pt2Function timerActiveCallback = activateDevice;
+  pt2Function timerTimeoutCallback = deactivateDevice;
+
+  timer.setCallback(timerActiveCallback, CALLBACK_TIMER_ACTIVE);
+  timer.setCallback(deactivateDevice, CALLBACK_TIMER_TIMEOUT);
+
 
   /*
   ptCallback = &DeviceClass::Activate;
@@ -84,7 +95,7 @@ void setup()
 
 void loop()
 {
-  printf("timer.update()...\n");
+  printf("timer.update()\n");
 
   unsigned long ts = millis() / 1000;
 

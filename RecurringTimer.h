@@ -41,8 +41,6 @@ public:
     unsigned long  _interval = 0;     // interval (millisecs)
     int _activations = TIMER_DEFAULT_ACTIVATIONS;         // default no activations per cycle
 
-    void call();
-
   private:
     void _getNextEvent(unsigned long ts, unsigned long interval);
 

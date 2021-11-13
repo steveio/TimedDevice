@@ -10,6 +10,7 @@ Copyright (C) 2020  Steven G Edwards
 
 #include "TimedDevice.h"
 
+using namespace std;
 
 TimedDevice::TimedDevice () {}
 

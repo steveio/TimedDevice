@@ -48,6 +48,17 @@ typedef unsigned long time_t;
 // TIME BASED TIMER - Specify On times minute precision
 #define TIMER_MINUTE 0x16
 
+
+#define CALLBACK_ARR_SZ  4
+
+// timer event callbacks
+#define CALLBACK_TIMER_INIT  4
+#define CALLBACK_TIMER_ACTIVE  3
+#define CALLBACK_TIMER_TIMEOUT  2
+
+typedef void (*pt2Function)();
+
+
 // time element - HH:MM (Hour must be specified as 24 hour clock)
 typedef struct tmElements_t {
   uint8_t Sec;
@@ -105,9 +116,14 @@ class Timer {
       int getHourGMTFromTS(unsigned long ts);
       int getDayOfWeekFromTS(unsigned long ts);
 
-      void setCallback(void (*function)(void)){
-    		this->function_callback = function;
+      void setCallback(pt2Function ptCallback, const int idx)
+      {
+        _callbackArr[idx] = ptCallback;
+      		//this->function_callback = function;
     	}
+
+      // set timer active time (millisecs)
+      void setDuration(unsigned long t);
 
     protected:
 
@@ -131,16 +147,20 @@ class Timer {
 
       bool _checkBitSet(int n, long * l);
 
-      virtual void call();
+      virtual void call(const int idx);
 
-      void (*function_callback)(void);
+      int _callbackArrIdx = CALLBACK_ARR_SZ;
+      pt2Function _callbackArr[CALLBACK_ARR_SZ] = {NULL};
+
+      bool _active = false; // timer status
+      unsigned long _lastActivation = 0; // timestamp of last activation
+      unsigned long  _duration = 0;     // (optional) timer active duration
 
     private:
         bool _checkTimer(int m, int h, int d);
         bool _checkTimeArray(unsigned long ts);
         bool _checkDayOfWeek(int d);
         void _setBit(int n);
-
 
 
 };

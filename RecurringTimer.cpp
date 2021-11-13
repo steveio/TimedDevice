@@ -74,24 +74,33 @@ bool RecurringTimer::update(unsigned long ts)
   {
     _getNextEvent(_nextEvent, _interval);
 
+    if (_duration > 0)
+    {
+      _active = true;
+    }
+    _lastActivation = ts;
+
     if (_activations-- > 0)
     {
-      if (function_callback)
+      if (_callbackArr[CALLBACK_TIMER_ACTIVE])
       {
-        call();
+        call(CALLBACK_TIMER_ACTIVE);
       }
       _activations = TIMER_DEFAULT_ACTIVATIONS;
-      return true;
+    }
+  }
+
+  // check active duration timeout
+  if (_duration > 0 && _lastActivation > 0 && _active == true && ts > _lastActivation + floor(_duration / 1000))
+  {
+    _active = false;
+    if (_callbackArr[CALLBACK_TIMER_TIMEOUT])
+    {
+      call(CALLBACK_TIMER_TIMEOUT);
     }
   }
 
   return false;
-}
-
-void RecurringTimer::call() {
-	if(function_callback != NULL) {
-		function_callback();
-	}
 }
 
 
