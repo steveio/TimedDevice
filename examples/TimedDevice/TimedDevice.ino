@@ -1,155 +1,409 @@
+/** 
+ *  Smart Indoor Garden
+ *  
+ *  Demonstrates a microcontroller managed indoor seed propagator environment
+ * 
+ *  -- Scheduled (relay) activation for LED LAMP(s)
+ *  -- Scheduled 5v pump activation for watering
+ *  -- Soil moisture / temperature monitoring
+ * 
+ * Arduino Pro Mini 3.3v 
+ * RTC DS1307
+ * 2x 5v water pump attached via relay
+ * Lamp via mains 240v AC relay
+ * Soil Moisture Capacitive v1.2 sensor
+ * DHT22 Temperature / Humidity Sensor
+ * 
+ * Minimal (low memory) standalone mcu optimised
+ *
+ * @requires Library TimedDevice ( https://github.com/steveio/TimedDevice )
+ *
+ */
 
+#include <Wire.h>
+#include "RTClib.h"
+//#include "SSD1306Ascii.h"
+//#include "SSD1306AsciiWire.h"
+#include <DHT.h>;
+#include "Timer.h"
+#include "RecurringTimer.h"
 #include "Pump.h"
 #include "Relay.h"
 
 
-Timer lamp1Timer;
-// Timer 32 bit bitmask defines hours (from 24h hours) device is on | off
+// SSD1306 Ascii 
+// 0X3C+SA0 - 0x3C or 0x3D
+//#define I2C_ADDRESS 0x3C
+//#define RST_PIN -1
+//SSD1306AsciiWire oled;
+
+
+RTC_DS1307 rtc;
+DateTime dt;
+char dtm[16], buf[2];
+int nextEvent;
+
+
+unsigned long startTime = 0;
+unsigned long sampleInterval = 1000;  // sample frequency in ms
+unsigned long sampleTimer = 0;
+
+
+// GPIO Pins & mapping to devices
+const int r1Pin = 10; // pump relay #1
+const int r2Pin = 11; // pump relay #2
+const int r3Pin = 12; // lamp relay
+const int s1Pin = A1; // soil moisture sensor #1
+const int s2Pin = 9;  // DHT22
+
+
+// master on/off switches
+bool pumpEnabled = true;
+bool lampEnabled = true;
+
+
+RecurringTimer pump1Timer;
+
+Pump pump1(r1Pin);
+
+
+// Timer 32 bit bitmask defines hours (24h) device is on | off
 // 0b 00000000 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
-long lamp1TimerBitmask =0b00000000001111111111111111100000;
-
-Timer lamp2Timer;
-long lamp2TimerBitmask =0b00000011111000000000011111100000;
-// day of week (bit index 0 = Sunday - 6 Saturday)
-long lamp2TimerDayOfWeekBitmask = 0b0101010;
+Timer lamp1Timer;
+long lamp1TimerBitmask =0b00000000000111111111111111000000; // 6am - 9pm
+Relay lamp1(r3Pin);
 
 
-Timer lamp3Timer;
-long lamp3TimerBitmask =0b00000011111000000000011111100000;
-// day(s) of month 0-31
-long lamp3TimerDayOfMonthBitmask =0b01111111100000000111111110000000;
+// Soil Moisture Capacitive v1.2 sensor calibration
+int airVal = 680;
+int waterVal = 326;
+const int intervals = (airVal - waterVal) / 3;
+
+int soilMoistureVal[2];
+int soilMoistureStatusId[2];
+
+// DHT22 Temperature / Humidity
+#define DHTTYPE DHT22   // DHT 22  (AM2302)
+DHT dht(s2Pin, DHTTYPE);
+float humidity, tempC;
 
 
-#define SZ_TIME_ELEMENT 3
+void activatePump()
+{
+  Serial.println("Pump1:on");
+  dt = rtc.now();
+  pump1.on(dt.unixtime());
+}
 
-Timer lamp4Timer;
-// create variables to define on/off time pairs
-struct tmElements_t t1_on, t1_off, t2_on, t2_off, t3_on, t3_off;
-struct tmElementArray_t timeArray;
+void deactivatePump()
+{
+  Serial.println("Pump1:off");
+  dt = rtc.now();
+  pump1.off(dt.unixtime());
+}
+
+// take an average from a sensor returning an int value
+int readSensorAvg(int pinId, int numSample, int delayTime)
+{
+  int v = 0;
+  for(int i=0; i<numSample; i++)
+  {
+    v += analogRead(pinId);
+    delay(delayTime);
+  }
+
+  v = v / numSample;
+  return v;
+}
+
+/**
+ * Read & categorise soil moisture sensor data 
+ * @param int pin id
+ * @param int soil moisture value (from sensor reading)
+ * @param int soil moisture level: { V_WET 0, WET 1, DRY 2, V_DRY 3 }
+ */
+void readSoilMoisture(int pinId, int * v, int * id)
+{
+
+  // take 3 samples with a 200 ms delay
+  *v = readSensorAvg(pinId, 3, 200);
+
+  if(*v < airVal && (*v > (airVal - intervals))) // Dry  > 562
+  {
+    *id = 2;
+  }
+  else if(*v < airVal && (*v > (airVal - intervals * 2))) // Wet > 444 - 562
+  {
+    *id = 1;
+  }
+  else
+  {
+    *id = 0; // V Wet 326 - 444
+  }
+
+}
+
+void readDHT22()
+{
+    humidity = dht.readHumidity();
+    tempC = dht.readTemperature();
+}
+
+/*
+void displayOLED()
+{
+
+  oled.clear();
+  oled.set1X();
+  
+  sprintf(dtm, "%02d/%02d/%02d %02d:%02d" , dt.day(),dt.month(),dt.year(),dt.hour(),dt.minute());
+  oled.println(dtm);
+
+  // LAMP 1
+  oled.print(F("L1: "));
+  if (lamp1.isActive())
+  {
+    oled.print("1");
+  } else {
+    oled.print("0");
+  }
+
+  oled.print(F("/"));
+
+  if (lamp1.timer.isScheduled(dt.hour()))
+  {
+    oled.print("1");
+  } else {
+    oled.print("0");
+  }
+
+  oled.print(F("/"));
+
+  nextEvent = lamp1.timer.getNextEvent(dt.hour());
+  sprintf(buf,"%02d",nextEvent);
+  oled.print(buf);
+  oled.println(":00");
+
+  // PUMP 1
+  oled.print(F("P1: "));
+  if (pump1.isActive())
+  {
+    oled.print("1");
+  } else {
+    oled.print("0");
+  }
+
+  oled.print(F("/"));
+
+  unsigned long duration = pump1Timer.getDuration();
+  oled.print(duration);
+
+  oled.print(F("/"));
+  unsigned long nextTs = pump1Timer.getNextEvent();
+
+  DateTime dt1((uint32_t) nextTs);
+  sprintf(dtm, "%02d/%02d/%02d %02d:%02d" , dt1.day(),dt1.month(),dt1.year(),dt1.hour(),dt1.minute());
+  oled.println(dtm);
+
+  oled.println("");
+
+  oled.print(F("Soil: "));
+  sprintf(buf,"%02d",soilMoistureVal[0]);
+  oled.print(buf);
+  oled.print("/");
+  sprintf(buf,"%02d",soilMoistureStatusId[0]);
+  oled.println(buf);
+
+  oled.print(F("Env: "));
+  oled.print(tempC);
+  oled.print(F("/"));
+  oled.print(humidity);
+  oled.println(F("%"));
+
+}
+
+*/
+
+void displaySerial()
+{
+
+    Serial.println("");
+    sprintf(dtm, "%02d/%02d/%02d %02d:%02d:%02d" , dt.day(),dt.month(),dt.year(),dt.hour(),dt.minute(),dt.second());
+    Serial.println(dtm);
+    Serial.println(dt.unixtime());
+
+    // LAMP 1
+    Serial.print(F("Lamp1: "));
+    if (lamp1.isActive())
+    {
+      Serial.print("1");
+    } else {
+      Serial.print("0");
+    }
+
+    Serial.print(F(" / "));
+
+    if (lamp1.timer.isScheduled(dt.hour()))
+    {
+      Serial.print("1");
+    } else {
+      Serial.print("0");
+    }
+
+    Serial.print(F(" / "));
+
+    nextEvent = lamp1.timer.getNextEvent(dt.hour());
+    sprintf(buf,"%02d",nextEvent);
+    Serial.print(buf);
+    Serial.println(":00");
 
 
-Relay lamp1(12);
-Relay lamp2(13);
-Relay lamp3(14);
-Relay lamp4(15);
+    // PUMP 1
+    Serial.print(F("P1: "));
+    if (pump1.isActive())
+    {
+      Serial.print("1");
+    } else {
+      Serial.print("0");
+    }
+  
+    Serial.print(F("/"));
+  
+    unsigned long duration = pump1Timer.getDuration();
+    Serial.print(duration);
+  
+    Serial.print(F("/"));
 
+    unsigned long interval = pump1Timer.getInterval();
+    Serial.print(interval);
+  
+    Serial.print(F("/"));
 
+    unsigned long nextTs = pump1Timer.getNextEvent();
+    DateTime dt1((uint32_t) nextTs);
+    sprintf(dtm, "%02d-%02d-%02d %02d:%02d:%02d" , dt1.day(),dt1.month(),dt1.year(),dt1.hour(),dt1.minute(), dt1.second());
+    Serial.print(dtm);
 
-// Pump1 (GPIO 10) - 6 Activations  / Duration (Timeout) 30 secs
-Timer pump1Timer;
-long pump1TimerBitmask =0b00000000001110000000000011100000;
-Pump pump1(10, 30000);
+    Serial.print(F(" / "));
 
+    nextTs = pump1Timer.getTimeout();
+    DateTime dt2((uint32_t) nextTs);
+    sprintf(dtm, "%02d-%02d-%02d %02d:%02d:%02d" , dt2.day(),dt2.month(),dt2.year(),dt2.hour(),dt2.minute(), dt2.second());
+    Serial.println(dtm);
+
+    Serial.print(F("Soil1: "));
+    sprintf(buf,"%02d",soilMoistureVal[0]);
+    Serial.print(buf);
+    Serial.print("/");
+    sprintf(buf,"%02d",soilMoistureStatusId[0]);
+    Serial.println(buf);
+
+    Serial.print(F("Temp/Hum: "));
+    Serial.print(tempC);
+    Serial.print((char)223);
+    Serial.print(F("C / "));
+    Serial.print(humidity);
+    Serial.print(F("%"));
+
+    Serial.println("");
+
+}
 
 
 void setup() {
 
   Serial.begin(115200);
 
-  lamp1Timer.init(TIMER_HOUR_OF_DAY, &lamp1TimerBitmask);
-  lamp1.initTimer();
+  startTime = millis();
 
-  lamp2Timer.init(TIMER_DAY_OF_WEEK, &lamp1TimerBitmask, &lamp2TimerDayOfWeekBitmask);
-  lamp2.initTimer(lamp2Timer);
+  Wire.begin();
+  Wire.setClock(400000L);
 
-  lamp3Timer.init(TIMER_DAY_OF_MONTH, &lamp3TimerBitmask, &lamp3TimerDayOfMonthBitmask);
-  lamp3.initTimer(lamp3Timer);
+  rtc.begin();
+  dt = rtc.now();
+  DateTime arduino_t = DateTime(__DATE__, __TIME__);
 
+  // sync RTC w/ arduino time @ compile time
+  if (dt.unixtime() != arduino_t.unixtime())
+  {
+    rtc.adjust(arduino_t.unixtime());
+  }
 
-  // On/Off times and DayOfWeek
-  t1_on.Hour = 9;
-  t1_on.Min = 0;
-  t1_off.Hour = 9;
-  t1_off.Min = 10;
+  // Sensor / Relay (pump/lamp) Pins
+  pinMode(s1Pin, INPUT);
+  pinMode(s2Pin, INPUT);
 
-  t2_on.Hour = 17;
-  t2_on.Min = 0;
-  t2_off.Hour = 17;
-  t2_off.Min = 10;
+  pinMode(r1Pin, OUTPUT);
+  digitalWrite(r1Pin, HIGH);
+  pinMode(r2Pin, OUTPUT);
+  digitalWrite(r2Pin, HIGH);
 
-  timeArray.n = 2;
-  timeArray.Wday = 0b11111111; // define which days of week timer is active on
+  pinMode(r3Pin, OUTPUT);
+  pinMode(r3Pin, HIGH);
 
-  timeArray.onTime[0] = t1_on;
-  timeArray.offTime[0] = t1_off;
-  timeArray.onTime[1] = t2_on;
-  timeArray.offTime[1] = t2_off;
+  unsigned long ts = dt.unixtime();
+  unsigned long interval = 15000;
+  unsigned long duration = 5000;
 
-  lamp4Timer.init(TIMER_MINUTE, &timeArray);
-  lamp4.initTimer(lamp4Timer);
+  // start timer from now
+  pump1Timer.init(TIMER_MILLIS_RECURRING, ts, interval, duration);
 
-  /*
+  // set callback func
+  pt2Function timerActiveCallback = activatePump;
+  pt2Function timerTimeoutCallback = deactivatePump;
+
+  pump1Timer.setCallback(timerActiveCallback, CALLBACK_TIMER_ACTIVE);
+  pump1Timer.setCallback(timerTimeoutCallback, CALLBACK_TIMER_TIMEOUT);
+
+  
   lamp1Timer.init(TIMER_HOUR_OF_DAY, &lamp1TimerBitmask);
   lamp1.initTimer(lamp1Timer);
 
-  pump1Timer.init(TIMER_HOUR_OF_DAY, &pump1TimerBitmask);
-  pump1.initTimer(pump1Timer);
+  dht.begin();
 
-  pump2Timer.init(TIMER_HOUR_OF_DAY, &pump2TimerBitmask);
-  pump2.initTimer(pump2Timer);
+  /* OLED LCD Display
+  #if RST_PIN >= 0
+    oled.begin(&Adafruit128x64, I2C_ADDRESS, RST_PIN);
+  #else // RST_PIN >= 0
+    oled.begin(&Adafruit128x64, I2C_ADDRESS);
+  #endif // RST_PIN >= 0
+  oled.setFont(Adafruit5x7);
+  oled.clear();
+
+  sprintf(dtm, "%02d/%02d/%02d %02d:%02d" , dt.day(),dt.month(),dt.year(),dt.hour(),dt.minute());
+  oled.println(dtm);
   */
 
+  sampleTimer = millis();
 }
-
 
 void loop() {
 
-  bool isActive, uled;
+  // check & update timed device status 
+  dt = rtc.now();
 
-  Serial.println("Lamp1 schedule: ");
-  lamp1.timer.printSchedule(Serial);
+  if (lampEnabled)
+  {
+    lamp1.update(dt.unixtime());
+  }
 
-  Serial.println("Lamp2 schedule: ");
-  lamp2.timer.printSchedule(Serial);
-
-
-  /*
-  Serial.print("Pump1 Status: ");
-  Serial.println(pump1.isActive());
-
-  Serial.println("Pump2 Status: ");
-  Serial.println(pump2.isActive());
-
-  Serial.println("Lamp1 Status: ");
-  Serial.println(lamp1.isActive());
-
-  Serial.println("Pump1 schedule: ");
-  pump1.timer.printSchedule(Serial);
-  */
-
-  // check device status at time when schedule is "on"
-
-  Serial.println("Lamp1 isScheduled 09:00 ");
-  Serial.println(lamp1.timer.isScheduled(9, NULL));
-
-  Serial.println("Lamp2 isScheduled Mon 09:00 ");
-  Serial.println(lamp2.timer.isScheduled(9, 1));
-
-  Serial.println("Lamp3 isScheduled Month 8th day (08/MM)  09:00 ");
-  Serial.println(lamp3.timer.isScheduled(9, 8));
-
-  Serial.println("Lamp4 isScheduled 09:05 Mon ");
-  Serial.println(lamp4.timer.isScheduled(5, 9, 1));
-
-  Serial.println("Lamp4 isScheduled 17:05 Tue ");
-  Serial.println(lamp4.timer.isScheduled(5, 17, 2));
-
-  // check device status at time when schedule is "off"
-
-  Serial.println("Lamp1 isScheduled 02:00 ");
-  Serial.println(lamp1.timer.isScheduled(2, NULL));
-
-  Serial.println("Lamp2 isScheduled Tue 09:00 ");
-  Serial.println(lamp2.timer.isScheduled(9, 2));
-
-  Serial.println("Lamp3 isScheduled Month day 03 (03/MM)  09:00 ");
-  Serial.println(lamp3.timer.isScheduled(9, 3));
-
-  Serial.println("Lamp4 isScheduled 08:0 Mon ");
-  Serial.println(lamp4.timer.isScheduled(0, 8, 1));
+  if (pumpEnabled)
+  {
+    if (pump1Timer.update(dt.unixtime()))
+    {
+      Serial.println("Active");
+    }
+  }
 
 
+  if (millis() >= sampleTimer + sampleInterval)
+  {    
+    readSoilMoisture(s1Pin, &soilMoistureVal[0], &soilMoistureStatusId[0]);
+    readDHT22();
 
+    //displayOLED();
+    displaySerial();
 
-  delay(5000);
+    sampleTimer = millis();
+  }
 }

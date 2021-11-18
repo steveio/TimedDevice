@@ -24,6 +24,7 @@ class Pump: public TimedDevice
 {
 
   public:
+    Pump(int pinId);
     Pump(int pinId, unsigned long duration);
     Pump(int pinId, unsigned long duration, unsigned long delay);
     void on(unsigned long ts);

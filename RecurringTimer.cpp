@@ -17,16 +17,17 @@ Copyright (C) 2020  Steven G Edwards
 RecurringTimer::RecurringTimer() {}
 
 // start timer from now (current ts)
-void RecurringTimer::init(int t, unsigned long ts, unsigned long interval)
+void RecurringTimer::init(int t, unsigned long ts, unsigned long interval, unsigned long duration)
 {
 
   _type = t;
   _interval = interval / 1000;
-
   _startTs = ts;
+  _duration = duration / 1000;
 
-  // compute timer next event
-  _getNextEvent(_startTs, _interval);
+  // compute timer next event + timeout
+  _setNextEvent(_startTs);
+  _setTimeout(_startTs);
 }
 
 
@@ -57,7 +58,7 @@ void RecurringTimer::init(int t, unsigned long ts, struct tmElements_t * startTi
   }
 
   // compute timer next event
-  _getNextEvent(_startTs, _interval);
+  _setNextEvent(_startTs);
 
   //printf("startTs: ");
   //printf("%lu\n",_startTs);
@@ -70,15 +71,16 @@ void RecurringTimer::init(int t, unsigned long ts, struct tmElements_t * startTi
 bool RecurringTimer::update(unsigned long ts)
 {
 
-  if (ts == _nextEvent)
+  if (ts >= _nextEvent)
   {
-    _getNextEvent(_nextEvent, _interval);
+    _setNextEvent(ts);
+    _setTimeout(ts);
 
     if (_duration > 0)
     {
       _active = true;
     }
-    _lastActivation = ts;
+    _lastActivation = ts;;
 
     if (_activations-- > 0)
     {
@@ -91,9 +93,10 @@ bool RecurringTimer::update(unsigned long ts)
   }
 
   // check active duration timeout
-  if (_duration > 0 && _lastActivation > 0 && _active == true && ts > _lastActivation + floor(_duration / 1000))
+  if (_duration > 0 && _lastActivation > 0 && _active == true && ts > _timeout)
   {
     _active = false;
+    _lastDeActivation = ts;
     if (_callbackArr[CALLBACK_TIMER_TIMEOUT])
     {
       call(CALLBACK_TIMER_TIMEOUT);
@@ -103,8 +106,27 @@ bool RecurringTimer::update(unsigned long ts)
   return false;
 }
 
-
-void RecurringTimer::_getNextEvent(unsigned long ts, unsigned long interval)
+unsigned long RecurringTimer::getNextEvent()
 {
-  _nextEvent = ts + interval;
+  return _nextEvent;
+}
+
+unsigned long RecurringTimer::getInterval()
+{
+  return _interval;
+}
+
+void RecurringTimer::_setNextEvent(unsigned long ts)
+{
+  _nextEvent = ts + _interval;
+}
+
+void RecurringTimer::_setTimeout(unsigned long ts)
+{
+  _timeout = ts + _duration;
+}
+
+unsigned long RecurringTimer::getTimeout()
+{
+  return _timeout;
 }

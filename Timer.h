@@ -124,6 +124,7 @@ class Timer {
 
       // set timer active time (millisecs)
       void setDuration(unsigned long t);
+      unsigned long getDuration();
 
     protected:
 
@@ -153,7 +154,11 @@ class Timer {
       pt2Function _callbackArr[CALLBACK_ARR_SZ] = {NULL};
 
       bool _active = false; // timer status
+      unsigned long  _startTs;      // timer from timestamp
+      unsigned long  _nextEvent;    // next event timestamp
       unsigned long _lastActivation = 0; // timestamp of last activation
+      unsigned long _lastDeActivation = 0;
+      unsigned long _timeout = 0;
       unsigned long  _duration = 0;     // (optional) timer active duration
 
     private:

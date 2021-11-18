@@ -4,6 +4,11 @@
 #include "TimedDevice.h"
 #include "Pump.h"
 
+Pump::Pump(int pinId)
+{
+  _pinId = pinId;
+};
+
 
 Pump::Pump(int pinId, unsigned long duration)
 {

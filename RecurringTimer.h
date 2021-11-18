@@ -17,6 +17,7 @@ Copyright (C) 2020  Steven G Edwards
 #ifndef RECURRINGTIMER_H_
 #define RECURRINGTIMER_H_
 
+#include <Arduino.h>
 #include <Timer.h>
 
 
@@ -30,19 +31,20 @@ class RecurringTimer: public Timer
 public:
 
   RecurringTimer();
-  void init(int t, unsigned long ts, unsigned long interval);
+  void init(int t, unsigned long ts, unsigned long interval, unsigned long duration);
   void init(int t, unsigned long ts, struct tmElements_t * startTime, unsigned long interval);
   bool update(unsigned long ts);
+  unsigned long getNextEvent();
+  unsigned long getInterval();
+  unsigned long getTimeout();
 
   protected:
-    unsigned long  _startTs;      // timer from timestamp
-    unsigned long  _nextEvent;    // next event timestamp
-
     unsigned long  _interval = 0;     // interval (millisecs)
     int _activations = TIMER_DEFAULT_ACTIVATIONS;         // default no activations per cycle
 
   private:
-    void _getNextEvent(unsigned long ts, unsigned long interval);
+    void _setNextEvent(unsigned long ts);
+    void _setTimeout(unsigned long ts);
 
 };
 

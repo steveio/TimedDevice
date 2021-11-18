@@ -125,6 +125,11 @@ void Timer::setDuration(unsigned long t)
   _duration = t;
 }
 
+unsigned long Timer::getDuration()
+{
+  return _duration;
+}
+
 /*
  *  Check if day (d) is set in tmElementArray_t Day of Week bitmap
  */
