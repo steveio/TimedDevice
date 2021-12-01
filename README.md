@@ -1,20 +1,37 @@
-Arduino Timed Device Library
+Timed Device Scheduling Library
 
-Simple & lightweight timer based scheduling for on/off devices
+Simple & lightweight c++ timer based scheduling for smart iot devices. 
 
-Supports recurring timers:
+Features:
 
-Bitmap timers w/ hour precision
-On time + Duration w/ timeout
-On/Off timers w/ hour and minute precision
-Day of Week/Month scheduling
-Device classes extend a base class TimedDevice. Timer class defines a schedule for when a device is on/off
+Recurring timers with interval, duration & callbacks
 
-class maintains attributes to track number of activations, time of last activation.
+Bitmask timers with hour precision
 
-Device classes (lamps, pumps etc) extend TimedDevice implementing required domain specific functionality.
+On time (hh:mm:ss) + Duration with timeout
 
-Supported on Arduino & ESP8266/32 microcontroller platforms
+Day of Week / Month scheduling
+
+Plans:
+
+TimerController class with either sorted linked list or btree structure
+Multithreaded parallel task execution on FeeRTOS 
+
+Overview:
+
+Timer instances can be created standalone or device classes can extend a base class TimedDevice. 
+
+Timer class defines a schedule either bitmask or point in time based, timer events (activations) can be specified as one-shot or with a duration.
+
+Methods isSheduled() or update() can be called to determine timer status
+
+Function callbacks are mapped to time activation and deactivation events
+
+Device classes can be of generic relay (switch) type or specialised according to device or domain requirement
+
+Platforms:
+
+Arduino ATMel328p & ESP8266/32 microcontroller platforms
 
 Optimisation is for low memory ATMega328p devices, typical sketch memory useage for a single device is 1.7k to 4k for a complex sketch with multiple devices.
 
@@ -32,6 +49,8 @@ Example use cases:
 - Activate a pump or valve
 - Open/Close blinds, curtains or shutters
 - Control a fan, heat source or air conditioning
+
+Implementation Notes:
 
 In C time.h the tm structure has the following definition −
 
