@@ -19,21 +19,29 @@ Copyright (C) 2020  Steven G Edwards
 #define TIMER_FUNCTION 0x10
 
 
+typedef void (*pt2TimerFunction)(unsigned long * currEvent, unsigned long * prevEvent, unsigned long * interval);
+
+
 class FunctionTimer: public Timer
 {
 
 public:
 
   FunctionTimer();
-  void init();
-  bool update(unsigned long ts);
+  void init(int t, unsigned long ts, unsigned long interval);
+
+  void setTimerCallback(pt2TimerFunction ptCallback)
+  {
+    this->_timerCallback = ptCallback;
+  }
+
   unsigned long getNextEvent();
 
   protected:
 
   private:
     void _setNextEvent(unsigned long ts);
-
+    pt2Function _timerCallback = NULL;
 };
 
 

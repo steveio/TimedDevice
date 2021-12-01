@@ -85,6 +85,8 @@ class Timer {
 
       Timer();
 
+      int getType();
+
       // initialise a timer (hour/day of week bitmask or on time),
       // then check timer status by calling isScheduled()
       void init(int type, long * h);
@@ -105,12 +107,22 @@ class Timer {
       // recurring timer (specific weekdays at specific time
       bool schedule(unsigned long ts, struct tmElementArray_t * onTime, long * d, void (*function)(void));
 
+
+      // timer activation - execute callback event
+      bool update(unsigned long ts);
+
+      void _setNextEvent(unsigned long ts);
+      void _setTimeout(unsigned long ts);
+
+      unsigned long getNextEvent();
+      unsigned long getInterval();
+      unsigned long getTimeout();
+
       struct tmElementArray_t * getTimeArray();
-      int getType();
 
       // return time of next on/off event from an hour bitmask timer definition
       int getNextEvent(int h, bool type = NULL);
-      //void printSchedule();
+
 
       // given a timestamp return hour (relative to unix epoch GMT)
       int getHourGMTFromTS(unsigned long ts);
@@ -155,7 +167,9 @@ class Timer {
 
       bool _active = false; // timer status
       unsigned long  _startTs;      // timer from timestamp
+      unsigned long  _interval = 0;     // interval (millisecs)
       unsigned long  _nextEvent;    // next event timestamp
+      unsigned long * _prevEvent;
       unsigned long _lastActivation = 0; // timestamp of last activation
       unsigned long _lastDeActivation = 0;
       unsigned long _timeout = 0;

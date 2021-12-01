@@ -119,6 +119,45 @@ bool Timer::schedule(unsigned long ts, struct tmElementArray_t * onTime, long * 
 
 }
 
+
+bool Timer::update(unsigned long ts)
+{
+
+  if (ts >= _nextEvent)
+  {
+    _setNextEvent(ts);
+    _setTimeout(ts);
+
+    if (_duration > 0)
+    {
+      _active = true;
+    }
+    _lastActivation = ts;;
+
+    if (_activations-- > 0)
+    {
+      if (_callbackArr[CALLBACK_TIMER_ACTIVE])
+      {
+        call(CALLBACK_TIMER_ACTIVE);
+      }
+      _activations = TIMER_DEFAULT_ACTIVATIONS;
+    }
+  }
+
+  // check active duration timeout
+  if (_duration > 0 && _lastActivation > 0 && _active == true && ts > _timeout)
+  {
+    _active = false;
+    _lastDeActivation = ts;
+    if (_callbackArr[CALLBACK_TIMER_TIMEOUT])
+    {
+      call(CALLBACK_TIMER_TIMEOUT);
+    }
+  }
+
+  return false;
+}
+
 // set timer active time (millisecs)
 void Timer::setDuration(unsigned long t)
 {
@@ -128,6 +167,27 @@ void Timer::setDuration(unsigned long t)
 unsigned long Timer::getDuration()
 {
   return _duration;
+}
+
+
+unsigned long Timer::getNextEvent()
+{
+  return _nextEvent;
+}
+
+void Timer::_setNextEvent(unsigned long ts)
+{
+  _nextEvent = ts + _interval;
+}
+
+void Timer::_setTimeout(unsigned long ts)
+{
+  _timeout = ts + _duration;
+}
+
+unsigned long Timer::getTimeout()
+{
+  return _timeout;
 }
 
 /*

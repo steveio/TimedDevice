@@ -33,18 +33,11 @@ public:
   RecurringTimer();
   void init(int t, unsigned long ts, unsigned long interval, unsigned long duration);
   void init(int t, unsigned long ts, struct tmElements_t * startTime, unsigned long interval);
-  bool update(unsigned long ts);
-  unsigned long getNextEvent();
-  unsigned long getInterval();
-  unsigned long getTimeout();
 
   protected:
-    unsigned long  _interval = 0;     // interval (millisecs)
     int _activations = TIMER_DEFAULT_ACTIVATIONS;         // default no activations per cycle
 
   private:
-    void _setNextEvent(unsigned long ts);
-    void _setTimeout(unsigned long ts);
 
 };
 
