@@ -158,6 +158,11 @@ bool Timer::update(unsigned long ts)
   return false;
 }
 
+unsigned long Timer::getInterval()
+{
+  return _interval;
+}
+
 // set timer active time (millisecs)
 void Timer::setDuration(unsigned long t)
 {

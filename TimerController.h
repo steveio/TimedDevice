@@ -25,11 +25,11 @@ class TimerController
 public:
 
   TimerController();
-  static TimerContoller& getInstance()
+  static TimerController& getInstance()
   {
-    static TimerController instance; / (*) /
+    static TimerController instance;
     return instance;
-  }
+  };
   void add(Timer t);
   bool update(unsigned long ts);
 

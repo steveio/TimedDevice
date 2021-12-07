@@ -23,7 +23,6 @@ Copyright (C) 2020  Steven G Edwards
 
 #define TIMER_MILLIS_RECURRING 0x08
 
-#define TIMER_DEFAULT_ACTIVATIONS 1
 
 class RecurringTimer: public Timer
 {
@@ -35,7 +34,6 @@ public:
   void init(int t, unsigned long ts, struct tmElements_t * startTime, unsigned long interval);
 
   protected:
-    int _activations = TIMER_DEFAULT_ACTIVATIONS;         // default no activations per cycle
 
   private:
 

@@ -51,7 +51,7 @@ unsigned long sampleTimer = 0;
 
 // GPIO Pins & mapping to devices
 const int r1Pin = 10; // pump relay #1
-const int r2Pin = 11; // pump relay #2
+const int r2Pin = 11; // fan relay #2
 const int r3Pin = 12; // lamp relay
 const int s1Pin = A1; // soil moisture sensor #1
 const int s2Pin = 9;  // DHT22
@@ -63,7 +63,6 @@ bool lampEnabled = true;
 
 
 RecurringTimer pump1Timer;
-
 Pump pump1(r1Pin);
 
 
@@ -72,6 +71,13 @@ Pump pump1(r1Pin);
 Timer lamp1Timer;
 long lamp1TimerBitmask =0b00000000000111111111111111000000; // 6am - 9pm
 Relay lamp1(r3Pin);
+
+
+long fan1TimerBitmask =0b00000000000100100100100100000000; // every 3 hours from 8am
+int fan1DayofWeek = 0b00101010; // (<sat -> sun>) every mon / weds / fri
+
+Timer fan1Timer;
+Relay fan1(r2Pin);
 
 
 // Soil Moisture Capacitive v1.2 sensor calibration
@@ -230,7 +236,6 @@ void displaySerial()
     Serial.println("");
     sprintf(dtm, "%02d/%02d/%02d %02d:%02d:%02d" , dt.day(),dt.month(),dt.year(),dt.hour(),dt.minute(),dt.second());
     Serial.println(dtm);
-    Serial.println(dt.unixtime());
 
     // LAMP 1
     Serial.print(F("Lamp1: "));
@@ -359,6 +364,11 @@ void setup() {
   lamp1Timer.init(TIMER_HOUR_OF_DAY, &lamp1TimerBitmask);
   lamp1.initTimer(lamp1Timer);
 
+
+  fan1Timer.init(TIMER_DAY_OF_WEEK, &fan1TimerBitmask, &fan1DayofWeek);
+  fan1.initTimer(fan1Timer);
+
+
   dht.begin();
 
   /* OLED LCD Display
@@ -395,6 +405,7 @@ void loop() {
     }
   }
 
+  fan1.update();
 
   if (millis() >= sampleTimer + sampleInterval)
   {    

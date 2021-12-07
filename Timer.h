@@ -48,6 +48,7 @@ typedef unsigned long time_t;
 // TIME BASED TIMER - Specify On times minute precision
 #define TIMER_MINUTE 0x16
 
+#define TIMER_DEFAULT_ACTIVATIONS 1
 
 #define CALLBACK_ARR_SZ  4
 
@@ -174,6 +175,8 @@ class Timer {
       unsigned long _lastDeActivation = 0;
       unsigned long _timeout = 0;
       unsigned long  _duration = 0;     // (optional) timer active duration
+      int _activations = TIMER_DEFAULT_ACTIVATIONS;         // default no activations per cycle
+
 
     private:
         bool _checkTimer(int m, int h, int d);

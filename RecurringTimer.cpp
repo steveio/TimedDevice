@@ -67,8 +67,3 @@ void RecurringTimer::init(int t, unsigned long ts, struct tmElements_t * startTi
   //printf("%lu\n",_nextEvent);
 
 }
-
-unsigned long RecurringTimer::getInterval()
-{
-  return _interval;
-}
