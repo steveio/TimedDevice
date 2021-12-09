@@ -2,7 +2,7 @@
 
 FunctionTimer.h
 
-Time events to occur based on function()
+Time events to occur where interval is based on function()
 
 Link - https://github.com/steveio/TimedDevice
 Copyright (C) 2020  Steven G Edwards
@@ -95,7 +95,6 @@ public:
     _timerDefaultFunc = ptCallback;
   };
 
-  /*
   void setTimerCallback(pt2TimerExpFunction ptCallback)
   {
     _timerExpFunc = ptCallback;
@@ -105,7 +104,6 @@ public:
   {
     _timerRandFunc = ptCallback;
   };
-  */
 
   protected:
 
