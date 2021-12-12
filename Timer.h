@@ -139,6 +139,8 @@ class Timer {
       void setDuration(unsigned long t);
       unsigned long getDuration();
 
+      int id;
+
     protected:
 
       // Timer type: Hour of Day + (optionally) Day of Week OR Day or Month

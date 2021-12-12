@@ -22,16 +22,16 @@ Copyright (C) 2020  Steven G Edwards
 class TimerController
 {
 
-public:
+  TimerController(){};
 
-  TimerController();
-  static TimerController& getInstance()
-  {
-    static TimerController instance;
-    return instance;
-  };
-  void add(Timer t);
-  bool update(unsigned long ts);
+  public:
+    static TimerController& getInstance()
+    {
+      static TimerController instance;
+      return instance;
+    };
+    void add(Timer t);
+    bool update(unsigned long ts);
 
   protected:
     Node* _node = NULL;

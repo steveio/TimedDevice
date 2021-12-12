@@ -17,7 +17,6 @@ Copyright (C) 2020  Steven G Edwards
 #ifndef RECURRINGTIMER_H_
 #define RECURRINGTIMER_H_
 
-#include <Arduino.h>
 #include <Timer.h>
 
 
