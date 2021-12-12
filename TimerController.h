@@ -2,7 +2,14 @@
 
 TimerController.h
 
-Executor class for a cluster of timer instances
+Executor class for a collection of 1..n timer instances
+
+Timers are registered with TimerController .add()
+In loop TimerContoller.update() is called executing any pending timer events.
+
+One-shot timers are removed on activation.
+
+Maintains internally a sorted linked list timer data structure.
 
 Manage n Timer instances efficiently, support multicore / thread architecture where available
 
