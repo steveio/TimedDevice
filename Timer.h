@@ -85,8 +85,12 @@ class Timer {
     public:
 
       Timer();
+      Timer(int id);
 
+      int getId();
       int getType();
+      bool isOneShot();
+      void setIsOneShot(bool v);
 
       // initialise a timer (hour/day of week bitmask or on time),
       // then check timer status by calling isScheduled()
@@ -139,12 +143,15 @@ class Timer {
       void setDuration(unsigned long t);
       unsigned long getDuration();
 
-      int id;
-
     protected:
+
+      int _id;
 
       // Timer type: Hour of Day + (optionally) Day of Week OR Day or Month
       int _type;
+
+      // One shot (single activation) or recurring timer
+      bool _isOneShot = false;
 
       // Timer 32 bit bitmask defines hours (from 24h clock) on / off
       // 0b 00000000 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0

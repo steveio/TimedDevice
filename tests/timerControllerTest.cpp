@@ -18,13 +18,17 @@ g++ -I/home/stevee/Arduino/libraries/TimedDevice timerControllerTest.cpp /home/s
 using namespace std;
 
 timeb t_start;
-RecurringTimer timer1, timer2, timer3;
+RecurringTimer timer1(1), timer2(2), timer3(3);
 TimerController timerController = TimerController::getInstance();
 
 
 class DeviceClass
 {
 public:
+   DeviceClass(int id)
+   {
+     id = id;
+   }
    bool Activate() {
      printf("DeviceClass( %d )::Activate\n", id); return true;
    };
@@ -32,9 +36,9 @@ public:
    int id;
 };
 
-DeviceClass device1;
-DeviceClass device2;
-DeviceClass device3;
+DeviceClass device1(1);
+DeviceClass device2(2);
+DeviceClass device3(3);
 
 void activateDevice1()
 {
@@ -50,7 +54,6 @@ void activateDevice3()
 {
   device3.Activate();
 }
-
 
 
 unsigned long millis() {
@@ -69,11 +72,6 @@ void setup()
 {
   printf("RecurringTimer test\n");
 
-  device1.id = 1;
-  device2.id = 2;
-  device3.id = 3;
-
-
   printf("Setup timers\n");
 
   unsigned long ts = millis() / 1000;
@@ -81,10 +79,6 @@ void setup()
   unsigned long interval2 = 1000 * 10;
   unsigned long interval3 = 1000 * 15;
   unsigned long duration = 2000;
-
-  timer1.id = 1;
-  timer2.id = 2;
-  timer3.id = 3;
 
   timer1.init(TIMER_MILLIS_RECURRING, ts, interval1, duration);
   timer2.init(TIMER_MILLIS_RECURRING, ts, interval2, duration);

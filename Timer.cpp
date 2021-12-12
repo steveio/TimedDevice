@@ -14,9 +14,29 @@ using namespace std;
 
 Timer::Timer() {}
 
+Timer::Timer(int id)
+{
+  _id = id;
+}
+
+int Timer::getId()
+{
+  return _id;
+}
+
 int Timer::getType()
 {
   return _type;
+}
+
+bool Timer::isOneShot()
+{
+  return _isOneShot
+}
+
+void Timer::setIsOneShot(bool v)
+{
+  _isOneShot = v;
 }
 
 // timer hour of day

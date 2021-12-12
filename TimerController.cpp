@@ -31,10 +31,10 @@ bool TimerController::update(unsigned long ts)
       // execute timer update()
       _node->timer.update(ts);
 
-      // if timer is one shot : remove node from linked list
-      //Node * expiredNode = _node;
-      //if (_node == NULL) break;
-      //free(expiredNode);
+      if (_node->timer.isOneShot())
+      {
+        _mergeSort.deleteNode(&_node, _node->timer.getId());
+      }
     }
 
     _node = _node->next;
